@@ -1,2 +1,5 @@
 # pygeosolve
-Geometric constraints solver for Python
+Geometric constraint solver for Python
+
+Sean Leavey  
+github.com/SeanDS
