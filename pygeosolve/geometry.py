@@ -43,7 +43,7 @@ class Point(object):
         x-position setter.
         
         :param x: Parameter object representing x-position
-        :raise ValueError: if specified x is not a Parameter object
+        :throws ValueError: if specified x is not a Parameter object
         """
         
         if not isinstance(x, Parameter):
@@ -68,7 +68,7 @@ class Point(object):
         y-position setter.
         
         :param y: Parameter object representing y-position
-        :raise ValueError: if specified y is not a Parameter object
+        :throws ValueError: if specified y is not a Parameter object
         """
         
         if not isinstance(y, Parameter):

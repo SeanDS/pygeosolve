@@ -48,8 +48,7 @@ class AbstractConstraint(object):
         Primitives setter method.
         
         :param primitives: Primitive or iterable returning Primitive objects
-        :raise ValueError: if primitives argument is not either a Primitive object
-                           or iterable containing Primitive objects
+        :raises ValueError: if primitives argument is not either a Primitive object or iterable containing Primitive objects
         """
         
         # check if specified primitives argument is iterable
@@ -142,7 +141,7 @@ class LengthConstraint(AbstractConstraint):
         Length setter.
         
         :param length: Length constraint
-        :raise ValueError: if length is not a positive real number
+        :raises ValueError: if length is not a positive real number
         """
         
         # check validity of specified length
@@ -211,7 +210,7 @@ class AngularConstraint(AbstractConstraint):
         Angle setter.
         
         :param angle: angle in degrees to constrain
-        :raise ValueError: if angle is not a real number
+        :raises ValueError: if angle is not a real number
         """
         
         # check validity of specified angle
