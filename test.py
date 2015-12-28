@@ -24,4 +24,6 @@ print lineB
 print lineA.hypot()
 print lineB.hypot()
 
+print problem.solution
+
 problem.plot()
