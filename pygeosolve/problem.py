@@ -10,28 +10,24 @@ import plot
 
 class Problem(object):
     def __init__(self):
-        self._params = []
-        self._constraints = []
-        self.errorCalcCount = 0
+        self.params = []
+        self.constraints = []
+        self.error_calc_count = 0
         
-    def __str__(self):
-        paramStr = "\n\t" + "\n\t".join([str(param) for param in self.params])
+    def add_constraint(self, constraint):
+        self.constraints.append(constraint)
         
-        return "Problem with parameters:{0}".format(paramStr)
+        self._add_constraint_params(constraint)
     
-    @property
-    def params(self):
-        return self._params
-    
-    @params.setter
-    def params(self, params):
-        self._params = params
-    
-    def addParam(self, param):
+    def _add_param(self, param):
         self.params.append(param)
+    
+    def _add_constraint_params(self, constraint):
+        for param in constraint.params:
+            if param not in self.params:
+                self._add_param(param)
         
-    @property
-    def freeParams(self):
+    def free_params(self):
         free = []
         
         for param in self.params:
@@ -40,45 +36,37 @@ class Problem(object):
         
         return free
     
-    def freeParamVals(self):
-        return np.array([param.value for param in self.freeParams])
+    def free_param_vals(self):
+        return np.array([param.value for param in self.free_params()])
     
-    def setFreeParamVals(self, values):
-        for param, value in zip(self.freeParams, values):
+    def _set_free_param_vals(self, values):
+        for param, value in zip(self.free_params(), values):
             param.value = value
-    
-    @property
-    def constraints(self):
-        return self._constraints
-    
-    def addConstraint(self, constraint):
-        self._constraints.append(constraint)
-        
-        self.addConstraintParams(constraint)
-    
-    def addConstraintParams(self, constraint):
-        for param in constraint.params:
-            if param not in self.params:
-                self.addParam(param)
-    
-    def errorForVals(self, vals):
-        self.setFreeParamVals(vals)
-        
-        return self.error()
     
     def error(self):
         """
         Calculate total error
         """
         
-        return reduce(operator.add, [constraint.error() for constraint in self.constraints])
+        # calculate error
+        error = reduce(operator.add, [constraint.error() for constraint in self.constraints])
+        
+        # increment count
+        self.error_calc_count += 1
+        
+        return error
+
+    def _error_with_vals(self, vals):
+        self._set_free_param_vals(vals)
+        
+        return self.error()
     
     def solve(self):
         # first guess at solution - just use current values
-        x0 = self.freeParamVals()
+        x0 = self.free_param_vals()
         
         # optimise
-        self.solution = opt.minimize(self.errorForVals, x0)
+        self.solution = opt.minimize(self._error_with_vals, x0)
         
         # update parameters from solution
         self.update()
@@ -87,7 +75,7 @@ class Problem(object):
         if not isinstance(self.solution, opt.OptimizeResult):
             raise Exception("Solution is not yet computed or is invalid")
         
-        self.setFreeParamVals(self.solution.x)
+        self._set_free_param_vals(self.solution.x)
     
     def plot(self):
         # try to find PyQt4 module
@@ -109,3 +97,8 @@ class Problem(object):
                     canvas.addLine(primitive)
         
         canvas.show()
+        
+    def __str__(self):
+        param_str = "\n\t" + "\n\t".join([str(param) for param in self.params])
+        
+        return "Problem with parameters:{0}".format(param_str)
