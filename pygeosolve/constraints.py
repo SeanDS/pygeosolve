@@ -5,7 +5,7 @@ import numpy as np
 import collections
 import numbers
 
-from geometry import Primitive
+from geometry import Primitive, Line
 
 """
 Constraint classes.
@@ -15,10 +15,7 @@ class AbstractConstraint(object):
     """
     Defines a most basic constraint.
     
-    A constraint is defined between one or more Primitive objects. This class
-    defines the constructor to populate the Primitive objects and abstract
-    methods to calculate the constraint's error, access to primitive points and
-    parameters.
+    A constraint is defined between one or more :class:`~pygeosolve.geometry.Primitive` objects. This class defines the constructor to populate this constraint's associated :class:`~pygeosolve.geometry.Primitive` objects and abstract methods to calculate its error, access to primitive :class:`~pygeosolve.geometry.Point` objects and :class:`~pygeosolve.parameters.Parameter` objects.
     """
     
     __metaclass__ = abc.ABCMeta
@@ -27,17 +24,27 @@ class AbstractConstraint(object):
         """
         Abstract constraint constructor.
         
-        :param primitives: a Primitive object or iterable returning Primitive objects
+        :param primitives: a :class:`~pygeosolve.geometry.Primitive` object or iterable returning :class:`~pygeosolve.geometry.Primitive` objects
         """
         
         self.primitives = primitives
     
+    @abc.abstractmethod
+    def error(self):
+        """
+        Abstract method to define the error function for this :class:`~pygeosolve.constraints.AbstractConstraint`.
+        """
+        
+        pass
+    
     @property
     def primitives(self):
         """
-        Primitives iterable getter method.
+        Property representing the :class:`~pygeosolve.geometry.Primitive` objects contained within this :class:`~pygeosolve.constraints.AbstractConstraint`.
         
-        :return: iterable returning Primitive objects within this constraint
+        :getter: returns a list containing the :class:`~pygeosolve.geometry.Primitive` objects attached to this :class:`~pygeosolve.constraints.AbstractConstraint`
+        :setter: sets the list of :class:`~pygeosolve.geometry.Primitive` objects attached to this :class:`~pygeosolve.constraints.AbstractConstraint`
+        :type: list
         """
         
         return self._primitives
@@ -47,39 +54,31 @@ class AbstractConstraint(object):
         """
         Primitives setter method.
         
-        :param primitives: Primitive or iterable returning Primitive objects
-        :raises ValueError: if primitives argument is not either a Primitive object or iterable containing Primitive objects
+        :raises ValueError: if primitives argument is not either a :class:`~pygeosolve.geometry.Primitive` object or list containing :class:`~pygeosolve.geometry.Primitive` objects
         """
         
         # check if specified primitives argument is iterable
-        if not isinstance(primitives, collections.Iterable):
-            # not an iterable, so let's make it one
+        if not isinstance(primitives, list):
+            # not a list, so let's make it one
             primitives = [primitives]
         
-        # check contents of iterable
+        # check contents of list
         for primitive in primitives:
-            # check if this object is Primitive
+            # check if this object is :class:`~pygeosolve.geometry.Primitive`
             if not isinstance(primitive, Primitive):
-                raise ValueError("Primitives argument must be a Primitive object or iterable containing thereof")
+                raise ValueError("Primitives argument must be a Primitive object or list containing thereof")
         
         # set it
         self._primitives = primitives
     
-    @abc.abstractmethod
-    def error(self):
-        """
-        Abstract method to define the error function for this constraint.
-        """
-        
-        pass
-    
     @property
     def points(self):
         """
-        Returns a collection of points contained within the primitives
-        defined as part of this constraint.
+        Property representing a collection of :class:`~pygeosolve.geometry.Point` objects contained within the primitives
+        defined as part of this :class:`~pygeosolve.constraints.AbstractConstraint`.
         
-        :return: list of points
+        :getter: returns a list of :class:`~pygeosolve.geometry.Point` objects associated with this :class:`~pygeosolve.constraints.AbstractConstraint`
+        :type: list
         """
         
         # extract lists of points from each primitive and add them to an overall list
@@ -88,9 +87,10 @@ class AbstractConstraint(object):
     @property
     def params(self):
         """
-        Returns a list of Parameter objects contained within the constrained primitives of this constraint.
+        Property representing a collection of :class:`~pygeosolve.parameters.Parameter` objects contained within this :class:`~pygeosolve.constraints.AbstractConstraint`.
         
-        :return: iterator that returns Parameter objects
+        :getter: returns a list of :class:`~pygeosolve.parameters.Parameter` objects associated with this :class:`~pygeosolve.constraints.AbstractConstraint`
+        :type: list
         """
         
         # empty parameter list
@@ -108,16 +108,21 @@ class AbstractConstraint(object):
 
 class LengthConstraint(AbstractConstraint):
     """
-    Constrains the length of a Line primitive.
+    Constrains the length of a :class:`~pygeosolve.geometry.Line` primitive.
     """
     
     def __init__(self, line, length, *args, **kwargs):
         """
         Constructs a new LengthConstraint object.
         
-        :param line: Line primitive to be constrained
+        :param line: :class:`~pygeosolve.geometry.Line` primitive to be constrained
         :param length: constraint length
+        :raises ValueError: if line is not of type :class:`~pygeosolve.geometry.Line`
         """
+        
+        # check type of line argument
+        if not isinstance(line, Line):
+            raise ValueError("Specified line is not of type Line")
         
         # construct parent
         super(LengthConstraint, self).__init__([line], *args, **kwargs)
@@ -128,9 +133,11 @@ class LengthConstraint(AbstractConstraint):
     @property
     def length(self):
         """
-        Length getter.
+        Property representing the length defined by this :class:`~pygeosolve.constraints.LengthConstraint`.
         
-        :return: constraint length
+        :getter: returns the length constrained by this :class:`~pygeosolve.constraints.LengthConstraint`
+        :setter: sets the length constrained by this :class:`~pygeosolve.constraints.LengthConstraint`
+        :type: positive real number
         """
         
         return self._length
@@ -140,7 +147,6 @@ class LengthConstraint(AbstractConstraint):
         """
         Length setter.
         
-        :param length: Length constraint
         :raises ValueError: if length is not a positive real number
         """
         
@@ -154,18 +160,20 @@ class LengthConstraint(AbstractConstraint):
     @property
     def line(self):
         """
-        Line object getter.
+        Property representing the :class:`~pygeosolve.geometry.Line` object associated with this :class:`~pygeosolve.constraints.LengthConstraint`.
         
-        :return: Line object this constraint constrains
+        :getter: returns the :class:`~pygeosolve.geometry.Line` object associated with this :class:`~pygeosolve.constraints.LengthConstraint`
+        :type: :class:`~pygeosolve.geometry.Line`
         """
         
         return self.primitives[0]
     
     def error(self):
         """
-        Calculates error in actual line length versus constraint length.
+        Calculates error in :class:`~pygeosolve.geometry.Line` length versus :class:`~pygeosolve.constraints.LengthConstraint` length.
         
         :return: error in length
+        :rtype: number
         """
         
         # difference in length
@@ -176,15 +184,15 @@ class LengthConstraint(AbstractConstraint):
 
 class AngularConstraint(AbstractConstraint):
     """
-    Constrains the angle between two Line primitives.
+    Constrains the angle between two :class:`~pygeosolve.geometry.Line` primitives.
     """
     
     def __init__(self, lineA, lineB, angle, *args, **kwargs):
         """
         Constructs a new AngularConstraint object.
         
-        :param lineA: first Line primitive to be constrained
-        :param lineB: second Line primitive to be constrained
+        :param lineA: first :class:`~pygeosolve.geometry.Line` primitive to be constrained
+        :param lineB: second :class:`~pygeosolve.geometry.Line` primitive to be constrained
         :param angle: constraint angle in degrees between lineA and lineB
         """
         
@@ -221,21 +229,21 @@ class AngularConstraint(AbstractConstraint):
         self._angle = angle
         
     @property
-    def lineA(self):
+    def line_a(self):
         """
-        First line getter.
+        First :class:`~pygeosolve.geometry.Line` getter.
         
-        :return: Line primitive representing first line in constraint
+        :return: :class:`~pygeosolve.geometry.Line` primitive representing first line in constraint
         """
         
         return self.primitives[0]
     
     @property
-    def lineB(self):
+    def line_b(self):
         """
-        Second line getter.
+        Second :class:`~pygeosolve.geometry.Line` getter.
         
-        :return: Line primitive representing second line in constraint
+        :return: :class:`~pygeosolve.geometry.Line` primitive representing second line in constraint
         """
         
         return self.primitives[1]
@@ -248,22 +256,22 @@ class AngularConstraint(AbstractConstraint):
         """
         
         # hypotenuse of each line
-        hypotA = self.lineA.hypot()
-        hypotB = self.lineB.hypot()
+        hypot_a = self.line_a.hypot()
+        hypot_b = self.line_b.hypot()
         
         # x-axis projection scaled by hypotenuse
-        xProjA = self.lineA.dx() / hypotA
-        xProjB = self.lineB.dx() / hypotB
+        x_proj_a = self.line_a.dx() / hypot_a
+        x_proj_b = self.line_b.dx() / hypot_b
         
         # y-axis projection scaled by hypotenuse
-        yProjA = self.lineA.dy() / hypotA
-        yProjB = self.lineB.dy() / hypotB
+        y_proj_a = self.line_a.dy() / hypot_a
+        y_proj_b = self.line_b.dy() / hypot_b
         
         # sum of products of projections along each axis
-        projSum = xProjA * xProjB + yProjA * yProjB
+        proj_total = x_proj_a * x_proj_b + y_proj_a * y_proj_b
         
         # angular error
-        angError = projSum + np.cos(np.radians(self.angle))
+        error = proj_total + np.cos(np.radians(self.angle))
         
         # return square
-        return angError * angError
+        return error * error
