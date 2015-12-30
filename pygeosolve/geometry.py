@@ -17,7 +17,7 @@ class Point(object):
     
     def __init__(self, x, y):
         """
-        Constructs a new Point object.
+        Constructs a new point.
         
         :param x: x-position
         :param y: y-position
@@ -30,9 +30,11 @@ class Point(object):
     @property
     def x(self):
         """
-        x-position getter.
+        Property representing the x-coordinate of this :class:`~pygeosolve.geometry.Point`.
         
-        :return: Parameter object representing x-position
+        :getter: returns the x-coordinate of this :class:`~pygeosolve.geometry.Point`
+        :setter: sets the x-coordinate of this :class:`~pygeosolve.geometry.Point`
+        :type: number
         """
         
         return self._x
@@ -42,8 +44,7 @@ class Point(object):
         """
         x-position setter.
         
-        :param x: Parameter object representing x-position
-        :throws ValueError: if specified x is not a Parameter object
+        :raises ValueError: if specified x is not of type :class:`~pygeosolve.parameters.Parameter`
         """
         
         if not isinstance(x, Parameter):
@@ -55,9 +56,11 @@ class Point(object):
     @property
     def y(self):
         """
-        y-position getter.
+        Property representing the y-coordinate of this :class:`~pygeosolve.geometry.Point`.
         
-        :return: Parameter object representing y-position
+        :getter: returns the y-coordinate of this :class:`~pygeosolve.geometry.Point`
+        :setter: sets the y-coordinate of this :class:`~pygeosolve.geometry.Point`
+        :type: number
         """
         
         return self._y
@@ -67,8 +70,7 @@ class Point(object):
         """
         y-position setter.
         
-        :param y: Parameter object representing y-position
-        :throws ValueError: if specified y is not a Parameter object
+        :raises ValueError: if specified y is not of type :class:`~pygeosolve.parameters.Parameter`
         """
         
         if not isinstance(y, Parameter):
@@ -79,19 +81,21 @@ class Point(object):
     
     def params(self):
         """
-        Returns a list containing the Parameter objects representing x- and y-positions.
+        Returns a list containing the :class:`~pygeosolve.parameters.Parameter` objects representing x- and y-coordinates.
         
-        :return: list containing the Parameter objects
+        :return: list containing the :class:`~pygeosolve.parameters.Parameter` objects
+        :rtype: list
         """
         
-        # list of Parameter objects
+        # list of :class:`~pygeosolve.parameters.Parameter` objects
         return [self.x, self.y]
     
     def __str__(self):
         """
-        String representation of this Point object.
+        String representation of this :class:`~pygeosolve.geometry.Point`.
         
         :return: string representing (x, y) coordinates
+        :rtype: string
         """
         
         return "({0}, {1})".format(self.x, self.y)
@@ -114,9 +118,11 @@ class Primitive(object):
     @property
     def points(self):
         """
-        Points getter.
+        Points property.
         
-        :return: list of Point objects contained in this Primitive
+        :getter: returns a list of :class:`~pygeosolve.geometry.Point` objects contained within this :class:`~pygeosolve.geometry.Primitive`
+        :setter: sets the list of :class:`~pygeosolve.geometry.Point` objects contained within this :class:`~pygeosolve.geometry.Primitive`
+        :type: list
         """
         
         return self._points
@@ -126,16 +132,25 @@ class Primitive(object):
         """
         Points setter.
         
-        :param points: list of Point objects
+        :raises ValueError: if list contains any object not of type :class:`~pygeosolve.geometry.Point`
         """
         
+        if not isinstance(points, list):
+            raise ValueError("Specified points argument is not a list")
+        
+        for point in points:
+            if not isinstance(point, Point):
+                raise ValueError("The specified points list must contain only Point objects")
+        
+        # set points
         self._points = points
     
     def __str__(self):
         """
-        String representation of this Primitive. Returns a description of the primitive and a list of its points.
+        String representation of this :class:`~pygeosolve.geometry.Primitive`. Returns a description of the :class:`~pygeosolve.geometry.Primitive` and a list of its associated :class:`~pygeosolve.geometry.Point` objects.
         
-        :return: description of this primitive
+        :return: description of this :class:`~pygeosolve.geometry.Primitive` and its :class:`~pygeosolve.geometry.Point` objects
+        :rtype: string
         """
         
         return "{0} with points {1}".format(self.description, ", ".join([str(point) for point in self.points]))
@@ -155,26 +170,26 @@ class Line(Primitive):
         :param y2: end y-coordinate
         """
         
-        # call parent constructor with new Point objects for the start and end points.
+        # call parent constructor with new :class:`~pygeosolve.geometry.Point` objects for the start and end points.
         super(Line, self).__init__([Point(Parameter(x1), Parameter(y1)), Point(Parameter(x2), Parameter(y2))], "Line")
     
-    @property
     def start(self):
         """
         Start point getter.
         
-        :return: start Point object
+        :return: start of :class:`~pygeosolve.geometry.Line`
+        :rtype: :class:`~pygeosolve.geometry.Point`
         """
         
         # first parameter provided in list of points in constructor represents the start
         return self.points[0]
     
-    @property
     def end(self):
         """
         End point getter.
         
-        :return: end Point object
+        :return: end of :class:`~pygeosolve.geometry.Line`
+        :rtype: :class:`~pygeosolve.geometry.Point`
         """
         
         # second parameter provided in list of points in constructor represents the end
@@ -185,20 +200,22 @@ class Line(Primitive):
         Length of line along the x-axis.
         
         :return: x-axis length
+        :rtype: positive number
         """
         
         # subtract start x-coordinate from end x-coordinate
-        return self.end.x.value - self.start.x.value
+        return self.end().x.value - self.start().x.value
     
     def dy(self):
         """
         Length of line along the y-axis.
         
         :return: y-axis length
+        :rtype: positive number
         """
         
         # subtract start y-coordinate from end y-coordinate
-        return self.end.y.value - self.start.y.value
+        return self.end().y.value - self.start().y.value
     
     def hypot(self):
         """
@@ -206,6 +223,7 @@ class Line(Primitive):
         This represents the actual length of the line.
         
         :return: length of line
+        :rtype: positive number
         """
         
         # Pythagoras' theorem
