@@ -11,6 +11,8 @@ The basic classes you will need to perform a geometric constraint problem are sh
 .. toctree::
    :maxdepth: 2
 
+   geometry/index
+   parameters/index
    constraints/index
 
 Solutions
