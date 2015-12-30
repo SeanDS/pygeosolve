@@ -113,7 +113,7 @@ class LengthConstraint(AbstractConstraint):
     
     def __init__(self, line, length, *args, **kwargs):
         """
-        Constructs a new LengthConstraint object.
+        Constructs a new length constraint.
         
         :param line: :class:`~pygeosolve.geometry.Line` primitive to be constrained
         :param length: constraint length
@@ -177,27 +177,27 @@ class LengthConstraint(AbstractConstraint):
         """
         
         # difference in length
-        dLength = self.line.hypot() - self.length
+        dl = self.line.hypot() - self.length
         
         # error: scaled square of length difference
-        return dLength * dLength * 100
+        return dl * dl * 100
 
 class AngularConstraint(AbstractConstraint):
     """
     Constrains the angle between two :class:`~pygeosolve.geometry.Line` primitives.
     """
     
-    def __init__(self, lineA, lineB, angle, *args, **kwargs):
+    def __init__(self, line_a, line_b, angle, *args, **kwargs):
         """
-        Constructs a new AngularConstraint object.
+        Constructs a new angular constraint.
         
-        :param lineA: first :class:`~pygeosolve.geometry.Line` primitive to be constrained
-        :param lineB: second :class:`~pygeosolve.geometry.Line` primitive to be constrained
-        :param angle: constraint angle in degrees between lineA and lineB
+        :param line_a: first :class:`~pygeosolve.geometry.Line` primitive to be constrained
+        :param line_b: second :class:`~pygeosolve.geometry.Line` primitive to be constrained
+        :param angle: constraint angle in degrees between line_a and line_b
         """
         
         # construct parent
-        super(AngularConstraint, self).__init__([lineA, lineB], *args, **kwargs)
+        super(AngularConstraint, self).__init__([line_a, line_b], *args, **kwargs)
         
         # set angle
         self.angle = angle
