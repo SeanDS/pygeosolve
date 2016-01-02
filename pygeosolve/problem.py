@@ -179,7 +179,7 @@ class Problem(object):
         for constraint in self.constraints:
             for primitive in constraint.primitives:
                 if isinstance(primitive, geometry.Line):
-                    canvas.addLine(primitive)
+                    canvas.add_line(primitive)
 
         # show canvas
         canvas.show()
