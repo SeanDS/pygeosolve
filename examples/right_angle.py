@@ -1,6 +1,6 @@
-from geometry import Line
-from problem import Problem
-from constraints import LineLengthConstraint, AngularConstraint
+from pygeosolve.geometry import Line
+from pygeosolve.problem import Problem
+from pygeosolve.constraints import LineLengthConstraint, AngularConstraint
 
 lineA = Line(20, 20, 50, 40)
 lineB = Line(50, 40, 20, 0)
