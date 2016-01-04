@@ -85,8 +85,11 @@ class Canvas(object):
         # add line to scene
         self.scene.addItem(graphicsLine)
 
-    def show(self):
-        """Shows the canvas on screen before exiting."""
+    def show(self, exit=True):
+        """Shows the canvas on screen before exiting.
+
+        :param exit: whether to exit execution after close
+        """
 
         # calibrate view
         self.calibrate_view()
@@ -94,5 +97,9 @@ class Canvas(object):
         # show on screen
         self.main_window.show()
 
-        # exit with status
-        sys.exit(self.application.exec_())
+        if exit:
+            # execute GUI then exit with status
+            sys.exit(self.application.exec_())
+        else:
+            # execute GUI and return
+            self.application.exec_()
