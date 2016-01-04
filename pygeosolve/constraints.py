@@ -3,6 +3,7 @@ from __future__ import division
 import abc
 import numpy as np
 import operator
+import tools
 
 from geometry import Primitive, Line
 
@@ -35,7 +36,7 @@ class AbstractConstraint(object):
         self.primitives = primitives
 
     @abc.abstractmethod
-    def error(self):
+    def error(self, *args, **kwargs):
         """Abstract method to define the error function for this constraint."""
 
         pass
@@ -118,7 +119,7 @@ class LineLengthConstraint(AbstractConstraint):
         # first and only primitive should be the line
         return self.primitives[0]
 
-    def error(self):
+    def error(self, *args, **kwargs):
         """Calculates length constraint error.
 
         :return: the error between the :class:`~pygeosolve.geometry.Line` \
@@ -126,10 +127,7 @@ class LineLengthConstraint(AbstractConstraint):
         """
 
         # difference in length
-        dl = self.line.hypot() - self.length
-
-        # error: scaled square of length difference
-        return dl * dl * 100
+        return np.abs(self.line.hypot() - self.length)
 
 class AngularConstraint(AbstractConstraint):
     """Constrains the angle between two lines."""
@@ -174,29 +172,62 @@ class AngularConstraint(AbstractConstraint):
 
         return self.primitives[1]
 
-    def error(self):
+    def error(self, *args, **kwargs):
         """Calculates angular constraint error.
 
         :return: the error of the actual angle versus the \
-        :class:`~pygeosolve.constraints.AngularConstraint` angle"""
+        :class:`~pygeosolve.constraints.AngularConstraint` angle
+        """
 
-        # hypotenuse of each line
-        hypot_a = self.line_a.hypot()
-        hypot_b = self.line_b.hypot()
+        return np.abs(tools.angle_between(self.line_a, self.line_b) - self.angle)
 
-        # x-axis projection scaled by hypotenuse
-        x_proj_a = self.line_a.dx() / hypot_a
-        x_proj_b = self.line_b.dx() / hypot_b
+class PointToPointDistanceConstraint(AbstractConstraint):
+    """Constrains the distance between two points."""
 
-        # y-axis projection scaled by hypotenuse
-        y_proj_a = self.line_a.dy() / hypot_a
-        y_proj_b = self.line_b.dy() / hypot_b
+    distance = None
+    """The constraint distance."""
 
-        # sum of products of projections along each axis
-        proj_total = x_proj_a * x_proj_b + y_proj_a * y_proj_b
+    def __init__(self, point_a, point_b, distance, *args, **kwargs):
+        """Constructs a new point to point distance constraint.
 
-        # angular error
-        error = proj_total + np.cos(np.radians(self.angle))
+        :param point_a: first :class:`~pygeosolve.geometry.Point` to be \
+        constrained
+        :param point_b: second :class:`~pygeosolve.geometry.Point` to be \
+        constrained
+        :param distance: constraint distance `point_a` and `point_b`
+        """
 
-        # return square
-        return error * error
+        # construct parent
+        super(PointToPointDistanceConstraint, self).__init__([point_a, point_b], *args, **kwargs)
+
+        # set angle
+        self.distance = distance
+
+    @property
+    def point_a(self):
+        """First point associated with this constraint.
+
+        :return: the first :class:`~pygeosolve.geometry.Point` provided to the \
+        constraint in its constructor
+        """
+
+        return self.primitives[0]
+
+    @property
+    def point_b(self):
+        """Second point associated with this constraint.
+
+        :return: the second :class:`~pygeosolve.geometry.Point` provided to \
+        the constraint in its constructor
+        """
+
+        return self.primitives[1]
+
+    def error(self, *args, **kwargs):
+        """Calculates point to point distance constraint error.
+
+        :return: the error of the actual distance versus the \
+        :class:`~pygeosolve.constraints.PointToPointDistanceConstraint` distance
+        """
+
+        return np.abs((self.point_a - self.point_b).abs() - self.distance)

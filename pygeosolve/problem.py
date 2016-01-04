@@ -120,6 +120,18 @@ class Problem(object):
         # return new error
         return self.error()
 
+    def _error_methods(self):
+        """Creates a list of error dicts in scipy.optimize format."""
+
+        # empty constraints list
+        constraints = []
+
+        # create list of dicts
+        for constraint in self.constraints:
+            constraints.append({'type': 'ineq', 'fun': constraint.error})
+
+        return constraints
+
     def solve(self):
         """Solves the problem.
 
@@ -131,7 +143,13 @@ class Problem(object):
         x0 = self.free_param_vals()
 
         # call optimisation routine
-        self.solution = opt.minimize(self._error_with_vals, x0)
+        self.solution = opt.minimize(fun=self._error_with_vals, x0=x0, \
+        method="COBYLA", tol=1e-10, constraints=self._error_methods())
+        #self.solution = opt.minimize(fun=self._error_with_vals, x0=x0, \
+        #method="SLSQP", constraints=self._constraint_functions(), \
+        #options={'maxiter': 1000000})
+        #self.solution = opt.basinhopping(self._error_with_vals, x0=x0, \
+        #niter=1000)
 
         # update parameters from solution
         self._update()

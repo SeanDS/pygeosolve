@@ -2,47 +2,11 @@ from __future__ import division
 
 import abc
 import numpy as np
+import operator
 
 from parameters import Parameter
 
 """Geometry classes."""
-
-class Point(object):
-    """Represents a two-dimensional point in Euclidean space."""
-
-    x = None
-    """The x-coordinate of this point."""
-
-    y = None
-    """The y-coordinate of this point."""
-
-    def __init__(self, x, y):
-        """Constructs a new point.
-
-        :param x: x-position
-        :param y: y-position
-        """
-
-        # set positions
-        self.x = x
-        self.y = y
-
-    def params(self):
-        """Parameters associated with this problem.
-
-        :return: list of :class:`~pygeosolve.parameters.Parameter` objects
-        """
-
-        # list of parameters
-        return [self.x, self.y]
-
-    def __str__(self):
-        """String representation of this point.
-
-        :return: string representing (x, y) coordinates
-        """
-
-        return "({0}, {1})".format(self.x, self.y)
 
 class Primitive(object):
     """Abstract class representing a primitive shape."""
@@ -80,6 +44,70 @@ class Primitive(object):
         """
 
         return "{0} with points {1}".format(self.name, ", ".join([str(point) for point in self.points]))
+
+    @property
+    def fixed(self):
+        return reduce(operator.and_, [point.fixed for point in self.points])
+
+    @fixed.setter
+    def fixed(self, fixed):
+        # set fixed status
+        [setattr(point, 'fixed', fixed) for point in self.points]
+
+class Point(Primitive):
+    """Represents a two-dimensional point in Euclidean space."""
+
+    x = None
+    """The x-coordinate of this point."""
+
+    y = None
+    """The y-coordinate of this point."""
+
+    def __init__(self, x, y):
+        """Constructs a new point.
+
+        :param x: x-position
+        :param y: y-position
+        """
+
+        # set positions
+        self.x = x
+        self.y = y
+
+        # call parent with self
+        super(Point, self).__init__([self], "Point")
+
+    def params(self):
+        """Parameters associated with this problem.
+
+        :return: list of :class:`~pygeosolve.parameters.Parameter` objects
+        """
+
+        # list of parameters
+        return [self.x, self.y]
+
+    def abs(self):
+        return np.sqrt(np.power(self.x, 2) + np.power(self.y, 2))
+
+    def __sub__(self, obj):
+        return Point(self.x.value - obj.x.value, self.y.value - obj.y.value)
+
+    @property
+    def fixed(self):
+        return self.x.fixed and self.y.fixed
+
+    @fixed.setter
+    def fixed(self, fixed):
+        self.x.fixed = fixed
+        self.y.fixed = fixed
+
+    def __str__(self):
+        """String representation of this point.
+
+        :return: string representing (x, y) coordinates
+        """
+
+        return "({0}, {1})".format(self.x, self.y)
 
 class Line(Primitive):
     """Represents a line formed between two points in Euclidean space."""
