@@ -157,7 +157,7 @@ class Problem(object):
         # update values from the optimisation result's solution
         self._set_free_param_vals(self.solution.x)
 
-    def plot(self):
+    def plot(self, *args, **kwargs):
         """Plots the problem with its current values.
 
         Requires the PyQt4 module."""
@@ -182,7 +182,7 @@ class Problem(object):
                     canvas.add_line(primitive)
 
         # show canvas
-        canvas.show()
+        canvas.show(*args, **kwargs)
 
     def __str__(self):
         """String representation of this problem.
