@@ -134,7 +134,7 @@ class Problem(object):
         self.solution = opt.minimize(self._error_with_vals, x0)
 
         # update parameters from solution
-        self.update()
+        self._update()
 
     def solution_exists(self):
         """Checks if a solution has been computed.
@@ -143,7 +143,7 @@ class Problem(object):
 
         return self.solution is not None
 
-    def update(self):
+    def _update(self):
         """Updates the list of free parameters associated with this problem.
 
         This method retrieves the values from the optimisation result and
