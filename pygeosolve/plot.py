@@ -1,105 +1,35 @@
-import sys
+"""Plotting."""
 
-import PyQt4.Qt
-from PyQt4.Qt import QApplication, QMainWindow
-import PyQt4.QtCore
-import PyQt4.QtGui
-from PyQt4.QtGui import QGraphicsScene, QGraphicsView, QGraphicsLineItem as QLine
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.patches import Arc
 
-"""Plot classes"""
 
-class Canvas(object):
-    """Represents a drawing canvas for plotting primitives."""
+try:
+    from itertools import pairwise
+except ImportError:
+    # Must be Python < 3.10.
+    from itertools import tee
 
-    application = None
-    """The Qt application object."""
+    def pairwise(iterable):
+        a, b = tee(iterable)
+        next(b, None)
+        return zip(a, b)
 
-    main_window = None
-    """The Qt main window object."""
 
-    scene = None
-    """The Qt scene object."""
+def plot_problem(problem):
+    fig = plt.figure()
+    ax = fig.gca()
+    ax.set_aspect("equal", "datalim")
 
-    view = None
-    """The Qt view object."""
+    for primitive in problem.primitives:
+        for point in primitive.points:
+            ax.plot(point.x, point.y, marker="x", color="red")
+        
+        for p1, p2 in pairwise(primitive.points):
+            ax.plot([p1.x, p2.x], [p1.y, p2.y], color="blue")
+            ax.text(p1.x + (p2.x - p1.x) / 2, p1.y + (p2.y - p1.y) / 2, primitive.name)
 
-    def __init__(self, *args, **kwargs):
-        """Creates a new canvas object and initialises it."""
 
-        # create canvas contents
-        self.create()
-
-        # set some properties
-        self.initialise()
-
-    def create(self):
-        # create application
-        self.application = QApplication(sys.argv)
-        self.main_window = QMainWindow()
-
-        # create drawing area
-        self.scene = QGraphicsScene()
-
-        # create view
-        self.view = QGraphicsView(self.scene, self.main_window)
-
-    def initialise(self):
-        # set close behaviour to prevent zombie processes
-        self.main_window.setAttribute(PyQt4.QtCore.Qt.WA_DeleteOnClose, True)
-
-        # set view antialiasing
-        self.view.setRenderHints(PyQt4.QtGui.QPainter.Antialiasing \
-        | PyQt4.Qt.QPainter.TextAntialiasing \
-        | PyQt4.Qt.QPainter.SmoothPixmapTransform \
-        | PyQt4.QtGui.QPainter.HighQualityAntialiasing)
-
-        # set central widget to be the view
-        self.main_window.setCentralWidget(self.view)
-
-        # resize main window to fit content
-        self.main_window.setFixedSize(500, 500)
-
-        # set window title
-        self.main_window.setWindowTitle('pygeosolve')
-
-    def calibrate_view(self):
-        # fit contents of scene in view
-        self.view.fitInView(self.scene.itemsBoundingRect(), \
-        PyQt4.QtCore.Qt.KeepAspectRatio)
-
-        # set scale
-        self.view.scale(5, 5)
-
-    def add_line(self, line):
-        """Adds a line to the scene.
-
-        :param line: the :class:`~PyQt4.QtGui.QGraphicsLineItem` to add
-        """
-
-        # create new line
-        graphicsLine = QLine()
-
-        # set line properties
-        graphicsLine.setLine(line.start().x.value, line.start().y.value, line.end().x.value, line.end().y.value)
-
-        # add line to scene
-        self.scene.addItem(graphicsLine)
-
-    def show(self, exit=True):
-        """Shows the canvas on screen before exiting.
-
-        :param exit: whether to exit execution after close
-        """
-
-        # calibrate view
-        self.calibrate_view()
-
-        # show on screen
-        self.main_window.show()
-
-        if exit:
-            # execute GUI then exit with status
-            sys.exit(self.application.exec_())
-        else:
-            # execute GUI and return
-            self.application.exec_()
+def show():
+    plt.show()

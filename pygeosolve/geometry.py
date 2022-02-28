@@ -1,180 +1,201 @@
-from __future__ import division
+"""Geometry."""
 
 import abc
+from decimal import DivisionByZero
 import numpy as np
-import operator
+from .parameters import Parameter
 
-from parameters import Parameter
 
-"""Geometry classes."""
+class Primitive(metaclass=abc.ABCMeta):
+    """A primitive shape.
+    
+    Parameters
+    ----------
+    name : :class:`str`
+        The name.
 
-class Primitive(object):
-    """Abstract class representing a primitive shape."""
+    points : sequence
+        The points that make up the primitive.
+    """
 
-    __metaclass__ = abc.ABCMeta
-
-    points = None
-    """Points associated with this primitive."""
-
-    name = None
-    """Name of this primitive."""
-
-    def __init__(self, points, name):
-        """Constructs a new primitive.
-
-        A list of points making up this primitive and a textual description
-        must be specified.
-
-        :param points: list of :class:`pygeosolve.geometry.Point` objects \
-        associated with this primitive
-        :param name: name of this primitive
-        """
-
-        self.points = points
+    def __init__(self, name, points):
         self.name = name
 
+        for i, point in enumerate(points):
+            if not isinstance(point, Point):
+                points[i] = Point(f"__{self.name}_p{i}__", *point)
+
+        # Quick check that names are unique.
+        assert len(set(p.name for p in points)) == len(points)
+
+        self.points = points
+
     def __str__(self):
-        """String representation of this primitive.
-
-        Returns a description of the :class:`~pygeosolve.geometry.Primitive` and
-        a list of its associated :class:`~pygeosolve.geometry.Point` objects.
-
-        :return: description of this :class:`~pygeosolve.geometry.Primitive` and
-        its :class:`~pygeosolve.geometry.Point` objects
-        """
-
-        return "{0} with points {1}".format(self.name, ", ".join([str(point) for point in self.points]))
+        points = ", ".join(str(point) for point in self.points)
+        return f"{self.__class__.__name__}({self.name}, [{points}])"
+    
+    def validate(self):
+        return True
 
     @property
     def fixed(self):
-        return reduce(operator.and_, [point.fixed for point in self.points])
+        return all([point.fixed for point in self.points])
 
     @fixed.setter
     def fixed(self, fixed):
-        # set fixed status
-        [setattr(point, 'fixed', fixed) for point in self.points]
+        for point in self.points:
+            point.fixed = fixed
+
 
 class Point(Primitive):
-    """Represents a two-dimensional point in Euclidean space."""
+    """A 2D point in Euclidean space.
 
-    x = None
-    """The x-coordinate of this point."""
+    Normally points should not be instantiated directly, but via :class:`primitives
+    <.Primitive>`.
+    
+    Parameters
+    ----------
+    name : :class:`str`
+        The name of this point.
 
-    y = None
-    """The y-coordinate of this point."""
+    x, y : :class:`.Parameter`
+        The x and y coordinates.
+    """
 
-    def __init__(self, x, y):
-        """Constructs a new point.
-
-        :param x: x-position
-        :param y: y-position
-        """
-
-        # set positions
-        self.x = x
-        self.y = y
-
-        # call parent with self
-        super(Point, self).__init__([self], "Point")
-
-    def params(self):
-        """Parameters associated with this problem.
-
-        :return: list of :class:`~pygeosolve.parameters.Parameter` objects
-        """
-
-        # list of parameters
-        return [self.x, self.y]
-
-    def abs(self):
-        return np.sqrt(np.power(self.x, 2) + np.power(self.y, 2))
-
-    def __sub__(self, obj):
-        return Point(self.x.value - obj.x.value, self.y.value - obj.y.value)
+    def __init__(self, name, x, y, fixed=False):
+        super().__init__(name, [self])
+        self.x = Parameter(x)
+        self.y = Parameter(y)
+        self._fixed = fixed
 
     @property
     def fixed(self):
-        return self.x.fixed and self.y.fixed
+        return self._fixed
 
     @fixed.setter
     def fixed(self, fixed):
         self.x.fixed = fixed
         self.y.fixed = fixed
+        self._fixed = fixed
+
+    @property
+    def params(self):
+        return [self.x, self.y]
+
+    def norm(self):
+        return np.sqrt(np.power(self.x.value, 2) + np.power(self.y.value, 2))
+
+    def __add__(self, other):
+        return self.__class__(
+            self._op_name("+", other),
+            Parameter(self.x + other.x),
+            Parameter(self.y + other.y)
+        )
+
+    def __sub__(self, other):
+        return self.__class__(
+            self._op_name("-", other),
+            Parameter(self.x - other.x),
+            Parameter(self.y - other.y)
+        )
 
     def __str__(self):
-        """String representation of this point.
+        return f"{self.__class__.__name__}({self.name}, ({self.x}, {self.y}))"
 
-        :return: string representing (x, y) coordinates
-        """
+    def _op_name(self, op, other):
+        return f"{self}{op}{other}"
 
-        return "({0}, {1})".format(self.x, self.y)
 
 class Line(Primitive):
-    """Represents a line formed between two points in Euclidean space."""
+    """A line formed between two 2D points in Euclidean space.
+    
+    Parameters
+    ----------
+    start, end : :class:`tuple` containg two :class:`floats <float>` or
+                 :class:`points <.Point>`
+    """
 
-    def __init__(self, x1, y1, x2, y2):
-        """Constructs a new Line object.
+    def __init__(self, name, start, end):            
+        super().__init__(name, [start, end])
 
-        :param x1: start x-coordinate
-        :param y1: start y-coordinate
-        :param x2: end x-coordinate
-        :param y2: end y-coordinate
-        """
-
-        # start point
-        start = Point(Parameter(x1), Parameter(y1))
-
-        # end point
-        end = Point(Parameter(x2), Parameter(y2))
-
-        # call parent with start and end points
-        super(Line, self).__init__([start, end], "Line")
-
+    @property
     def start(self):
-        """Line start point.
-
-        :return: start :class:`~pygeosolve.geometry.Point` of \
-        :class:`~pygeosolve.geometry.Line`
-        """
-
-        # first point represents the start
         return self.points[0]
 
+    @property
     def end(self):
-        """Line end point.
-
-        :return: end :class:`~pygeosolve.geometry.Point` of \
-        :class:`~pygeosolve.geometry.Line`
-        """
-
-        # second point represents the end
         return self.points[1]
 
     def dx(self):
-        """Difference in length between end and start x-values.
-
-        :return: difference in x-values
+        """The difference between the end and start x-coordinates.
+        
+        Returns
+        -------
+        :class:`float`
+            The difference.
         """
-
-        # subtract start x-coordinate from end x-coordinate
-        return self.end().x.value - self.start().x.value
+        return self.end.x - self.start.x
 
     def dy(self):
-        """Difference in length between end and start y-values.
-
-        :return: difference in y-values
+        """The difference between the end and start y-coordinates.
+        
+        Returns
+        -------
+        :class:`float`
+            The difference.
         """
+        return self.end.y - self.start.y
 
-        # subtract start y-coordinate from end y-coordinate
-        return self.end().y.value - self.start().y.value
+    def length(self):
+        """The line length.
 
-    def hypot(self):
-        """Length of line hypotenuse of triangle formed by the x- and
-        y-coordinates of the start and end points. This represents the actual
-        length of the line.
-
-        :return: length of line
+        Returns
+        -------
+        :class:`float`
+            The length.
         """
+        return (self.end - self.start).norm()
 
-        # Pythagoras' theorem
-        return np.sqrt(self.dx() * self.dx() + self.dy() * self.dy())
+    def angle_to(self, other):
+        """The angle to other line with respect to this one.
+        
+        Parameters
+        ----------
+        other : :class:`.Line`
+            The other line.
+        
+        Returns
+        -------
+        :class:`float`
+            The angle, in degrees.
+        """
+        dot = self.dx().value * other.dx().value + self.dy().value * other.dy().value
+        lsq = self.length() * other.length()
+
+        try:
+            dotoverlsq = dot / lsq
+        except ZeroDivisionError:
+            return np.nan
+        else:
+            if -1 > dotoverlsq > 1:
+                return np.nan
+
+        angle = np.degrees(np.arccos(dotoverlsq))
+        return angle % 180
+
+    def validate(self):
+        zerolength = np.isclose(self.length(), 0)
+
+        if zerolength:
+            return Invalid(self, "zero length")
+        
+        return True
+
+
+class Invalid:
+    def __init__(self, primitive, reason):
+        self.primitive = primitive
+        self.reason = reason
+    
+    def __str__(self):
+        return f"{self.primitive} ({self.reason})"

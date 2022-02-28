@@ -1,214 +1,165 @@
-from __future__ import division
+"""Constraint problems."""
 
-import numpy as np
-import scipy.optimize as opt
-import imp
+from multiprocessing.sharedctypes import Value
+import warnings
+from functools import cached_property
+from contextlib import contextmanager
+from scipy.optimize import minimize
+from .geometry import Invalid
+from .constraints import LineLengthConstraint, LineAngleConstraint
 
-import geometry
-import plot
 
-"""Problem classes"""
+class Problem:
+    def __init__(self):
+        self.constraints = []
 
-class Problem(object):
-    params = []
-    """Parameters associated with this problem."""
+    @cached_property
+    def params(self):
+        params = []
 
-    constraints = []
-    """Constraints associated with this problem."""
+        for constraint in self.constraints:
+            for param in constraint.params:
+                if param not in params:
+                    params.append(param)
 
-    error_calc_count = 0
-    """Number of times this problem's error has been calculated."""
+        return params
 
-    def add_constraint(self, constraint):
-        """Adds a constraint to this problem.
-
-        :param constraint: the \
-        :class:`~pygeosolve.constraints.AbstractConstraint` to add
-        """
-
-        # add constraint
-        self.constraints.append(constraint)
-
-        # extract its parameters
-        self._add_constraint_params(constraint)
-
-    def _add_param(self, param):
-        """Adds a parameter to this problem.
-
-        :param param: the :class:`~pygeosolve.parameters.Parameter` to add
-        """
-
-        # add parameter
-        self.params.append(param)
-
-    def _add_constraint_params(self, constraint):
-        """Adds the parameters from a constraint to this problem.
-
-        :param constraint: the \
-        :class:`~pygeosolve.constraints.AbstractConstraint` to extract the \
-        parameters from
-        """
-
-        # loop over the constraint's parameters
-        for param in constraint.params:
-            # check if parameter already exists in list
-            if param not in self.params:
-                # add parameter
-                self._add_param(param)
-
+    @cached_property
     def free_params(self):
-        """Non-fixed parameters associated with this problem.
-
-        :return: list of free :class:`~pygeosolve.parameters.Parameter` objects
-        """
-
-        # empty list of free parameters
         free = []
 
-        # loop over this problem's parameters
         for param in self.params:
-            # identify free parameters
-            if not param.fixed:
-                # add to list
+            if not param.fixed and param not in free:
                 free.append(param)
 
         return free
 
-    def free_param_vals(self):
-        """Values of non-fixed parameters associated with this problem.
+    @cached_property
+    def free_values(self):
+        """Current values of the free parameters in this problem.
 
-        :return: list of free :class:`~pygeosolve.parameters.Parameter` values
+        Returns
+        -------
+        :class:`list`
+            The current free parameter values.
         """
+        return [param.value for param in self.free_params]
 
-        # return values extracted from list of free parameters
-        return np.array([param.value for param in self.free_params()])
+    @cached_property
+    def primitives(self):
+        primitives = []
 
-    def _set_free_param_vals(self, values):
-        """Sets values of non-fixed parameters in this problem.
+        for constraint in self.constraints:
+            for primitive in constraint.primitives:
+                if primitive not in primitives:
+                    primitives.append(primitive)
+        
+        return primitives
 
-        :param values: list of new values to set, in the same order as the \
-        free parameters returned by `free_param_vals`
+    def _invalidate_caches(self):
+        def invalidate(attrib):
+            try:
+                delattr(self, attrib)
+            except AttributeError:
+                pass
+        
+        for attrib in ("params", "free_params", "free_values", "primitives"):
+            invalidate(attrib)
+
+    def _validate_primitives(self):
+        status = [primitive.validate() for primitive in self.primitives]
+        invalid = list(filter(lambda s: isinstance(s, Invalid), status))
+
+        if invalid:
+            raise ValueError(
+                f"The following primitives are invalid: {', '.join(str(s) for s in invalid)}"
+            )
+
+
+    def constrain_line_length(self, line, length):
+        """Add a constraint on the length of a line.
+
+        Parameters
+        ----------
+        line : :class:`.Line`
+            The line to constrain.
+        
+        length : :class:`float`
+            The line length to target.
         """
+        self.constraints.append(LineLengthConstraint(line, length))
 
-        # loop over free parameters and the new values
-        for param, value in zip(self.free_params(), values):
-            # set the new value of this parameter
+    def constrain_angle_between_lines(self, line_a, line_b, angle):
+        """Add a constraint on the angle between two lines.
+
+        Parameters
+        ----------
+        line_a, line_b : :class:`.Line`
+            The lines to constrain.
+        
+        :class:`float`
+            The angle (in degrees) to target.
+        """
+        self.constraints.append(LineAngleConstraint(line_a, line_b, angle))
+
+    def _update(self, values):
+        """Update current free parameter values."""
+        for param, value in zip(self.free_params, values):
             param.value = value
 
     def error(self):
-        """Calculates the total error associated with this problem.
+        """Calculate the current free parameter values' total error.
 
-        :return: total of individual \
-        :class:`~pygeosolve.constraints.AbstractConstraint` errors"""
-
-        # calculate error sum
-        error = sum([constraint.error() for constraint in self.constraints])
-
-        # increment error calculation count
-        self.error_calc_count += 1
-
-        return error
-
-    def _error_with_vals(self, vals):
-        """Sets new free parameter values and returns the new error.
-
-        :param vals: the new free parameter values to set"""
-
-        # set free parameter values
-        self._set_free_param_vals(vals)
-
-        # return new error
-        return self.error()
-
-    def _error_methods(self):
-        """Creates a list of error dicts in scipy.optimize format."""
-
-        # empty constraints list
-        constraints = []
-
-        # create list of dicts
-        for constraint in self.constraints:
-            constraints.append({'type': 'ineq', 'fun': constraint.error})
-
-        return constraints
+        Returns
+        -------
+        :class:`float`
+            The total error.
+        """
+        return sum(constraint.error() for constraint in self.constraints)
 
     def solve(self):
         """Solves the problem.
 
         This method attempts to minimise the error function given the
         constraints defined within the problem. A successful minimisation
-        results in the new, optimised parameter values being assigned."""
+        results in the new, optimised parameter values being assigned.
+        """
 
-        # first guess at solution - just use current values
-        x0 = self.free_param_vals()
+        def f(x, *_):
+            self._update(x)
+            return self.error()
 
-        # call optimisation routine
-        self.solution = opt.minimize(fun=self._error_with_vals, x0=x0, \
-        method="COBYLA", tol=1e-10, constraints=self._error_methods())
-        #self.solution = opt.minimize(fun=self._error_with_vals, x0=x0, \
-        #method="SLSQP", constraints=self._constraint_functions(), \
-        #options={'maxiter': 1000000})
-        #self.solution = opt.basinhopping(self._error_with_vals, x0=x0, \
-        #niter=1000)
+        self._invalidate_caches()
+        self._validate_primitives()
 
-        # update parameters from solution
-        self._update()
+        # Perform optimisation, or, if there's an error, restore the original solution.
+        with self._temporary_parameters():
+            solution = minimize(
+                f,
+                x0=self.free_values,
+                method="COBYLA"
+            )
 
-    def solution_exists(self):
-        """Checks if a solution has been computed.
+        if not solution.success:
+            warnings.warn("Unable to find solution")
+        else:
+            self._update(solution.x)
 
-        :return: True if solution exists, otherwise False"""
+    @contextmanager
+    def _temporary_parameters(self):
+        xpre = self.free_values
+        yield
+        self._update(xpre)
 
-        return self.solution is not None
-
-    def _update(self):
-        """Updates the list of free parameters associated with this problem.
-
-        This method retrieves the values from the optimisation result and
-        updates each one's corresponding parameter."""
-
-        # check if solution exists
-        if not self.solution_exists():
-            # cannot update values without a solution
-            raise Exception("Solution has not been computed")
-
-        # update values from the optimisation result's solution
-        self._set_free_param_vals(self.solution.x)
-
-    def plot(self, *args, **kwargs):
-        """Plots the problem with its current values.
-
-        Requires the PyQt4 module."""
-
-        # try to find PyQt4 module
-        try:
-            imp.find_module("PyQt4")
-        except ImportError:
-            raise Exception("The PyQt4 module is required for plotting")
-
-        # create canvas
-        canvas = plot.Canvas()
-
-        # empty list of lines added to canvas
-        lines = []
-
-        # add lines to canvas
-        # TODO: add support for different primitives
+    def __str__(self):        
+        constraintstrs = []
         for constraint in self.constraints:
-            for primitive in constraint.primitives:
-                if isinstance(primitive, geometry.Line):
-                    canvas.add_line(primitive)
+            constraintstrs.append(str(constraint))
 
-        # show canvas
-        canvas.show(*args, **kwargs)
+        chunks = (
+            f"Problem with {len(self.free_params)} free parameter(s) and {len(self.constraints)} constraint(s)",
+            "\n\t" + "\n\t".join(constraintstrs),
+            f"\nTotal error: {self.error()}"
+        )
 
-    def __str__(self):
-        """String representation of this problem.
-
-        :return: description of problem"""
-
-        # build list of parameter string representations
-        param_str = "\n\t" + "\n\t".join([str(param) for param in self.params])
-
-        # return description
-        return "Problem with parameters:{0}".format(param_str)
+        return "".join(chunks)

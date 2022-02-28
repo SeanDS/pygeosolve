@@ -1,31 +1,35 @@
-from __future__ import division
+"""Parameters."""
 
-import numpy as np
 
-"""Parameter classes."""
+class Parameter:
+    """A parameter.
+    
+    Parameters can be free or fixed.
+    """
+    def __init__(self, value, fixed=False):
+        if isinstance(value, self.__class__):
+            # Copy constructor.
+            if fixed:
+                raise ValueError(
+                    f"Cannot define 'fixed' when passing an existing {self.__class__}."
+                )
+            fixed = value.fixed
 
-class Parameter(object):
-    """Represents a parameter that can be variable or fixed."""
-
-    value = None
-    """The value of this parameter."""
-
-    fixed = False
-    """Whether this parameter is fixed or not."""
-
-    def __init__(self, value):
-        """Constructs a new Parameter object.
-
-        :param value: the initial value of this parameter
-        """
-
-        # set value
-        self.value = value
+        self.value = float(value)
+        self.fixed = fixed
 
     def __str__(self):
-        """String representation of this parameter.
+        fixed = "fixed" if self.fixed else "free"
+        return f"{self.__class__.__name__}({self.value}, {fixed})"
 
-        :return: textual representation of the value of this parameter.
-        """
+    def __add__(self, other):
+        return self.__class__(self.value + getattr(other, "value", other))
 
-        return str(self.value)
+    def __sub__(self, other):
+        return self.__class__(self.value - getattr(other, "value", other))
+
+    def __truediv__(self, other):
+        return self.__class__(self.value / getattr(other, "value", other))
+
+    def __float__(self):
+        return self.value
