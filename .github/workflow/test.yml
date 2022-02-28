@@ -1,0 +1,44 @@
+name: Test suite for pygeosolve
+
+on: [push]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Python ${{ matrix.python-version }} (${{ matrix.os }})
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macOS
+          - Ubuntu
+          - Windows
+        python-version:
+          - 3.6
+          - 3.7
+          - 3.8
+          - 3.9
+          - 3.10
+
+    runs-on: ${{ matrix.os }}-latest
+
+    steps:
+    - name: Get source code
+      uses: actions/checkout@v2
+    - name: Create package
+      run: |
+        python -m pip install .
+    - name: Test package
+      run: |
+        python -m pip install pytest
+        python -m pytest --cov pygeosolve --cov-report=xml --junitxml=pytest.xml
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v2
+      with:
+        name: pytest-${{ matrix.os }}-${{ matrix.python-version }}
+        path: pytest.xml
