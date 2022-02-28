@@ -3,7 +3,7 @@
 
 class Parameter:
     """A parameter.
-    
+
     Parameters can be free or fixed.
     """
     def __init__(self, value, fixed=False):

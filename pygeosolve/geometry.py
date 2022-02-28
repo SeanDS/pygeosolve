@@ -4,11 +4,12 @@ import abc
 from decimal import DivisionByZero
 import numpy as np
 from .parameters import Parameter
+from .util import map_angle_about_zero
 
 
 class Primitive(metaclass=abc.ABCMeta):
     """A primitive shape.
-    
+
     Parameters
     ----------
     name : :class:`str`
@@ -30,10 +31,10 @@ class Primitive(metaclass=abc.ABCMeta):
 
         self.points = points
 
+    @abc.abstractmethod
     def __str__(self):
-        points = ", ".join(str(point) for point in self.points)
-        return f"{self.__class__.__name__}({self.name}, [{points}])"
-    
+        raise NotImplementedError
+
     def validate(self):
         return True
 
@@ -52,7 +53,7 @@ class Point(Primitive):
 
     Normally points should not be instantiated directly, but via :class:`primitives
     <.Primitive>`.
-    
+
     Parameters
     ----------
     name : :class:`str`
@@ -100,7 +101,8 @@ class Point(Primitive):
         )
 
     def __str__(self):
-        return f"{self.__class__.__name__}({self.name}, ({self.x}, {self.y}))"
+        fixed = "fixed" if self.fixed else "free"
+        return f"{self.__class__.__name__}({self.name}, ({self.x.value}, {self.y.value}), {fixed})"
 
     def _op_name(self, op, other):
         return f"{self}{op}{other}"
@@ -108,14 +110,14 @@ class Point(Primitive):
 
 class Line(Primitive):
     """A line formed between two 2D points in Euclidean space.
-    
+
     Parameters
     ----------
     start, end : :class:`tuple` containg two :class:`floats <float>` or
                  :class:`points <.Point>`
     """
 
-    def __init__(self, name, start, end):            
+    def __init__(self, name, start, end):
         super().__init__(name, [start, end])
 
     @property
@@ -128,7 +130,7 @@ class Line(Primitive):
 
     def dx(self):
         """The difference between the end and start x-coordinates.
-        
+
         Returns
         -------
         :class:`float`
@@ -138,7 +140,7 @@ class Line(Primitive):
 
     def dy(self):
         """The difference between the end and start y-coordinates.
-        
+
         Returns
         -------
         :class:`float`
@@ -156,46 +158,54 @@ class Line(Primitive):
         """
         return (self.end - self.start).norm()
 
+    def angle(self):
+        """The angle of the vector formed by this line translated to the origin.
+
+        Returns
+        -------
+        :class:`float`
+            The angle, in degrees, in the range (-180, 180].
+        """
+        angle = np.degrees(np.arctan2(self.dx().value, self.dy().value))
+        return map_angle_about_zero(angle)
+
     def angle_to(self, other):
         """The angle to other line with respect to this one.
-        
+
         Parameters
         ----------
         other : :class:`.Line`
             The other line.
-        
+
         Returns
         -------
         :class:`float`
-            The angle, in degrees.
+            The angle, in degrees, in the range (-180, 180].
         """
-        dot = self.dx().value * other.dx().value + self.dy().value * other.dy().value
-        lsq = self.length() * other.length()
+        angle = np.degrees(
+            np.arctan2(other.dy().value, other.dx().value)
+            - np.arctan2(self.dy().value, self.dx().value)
+        )
 
-        try:
-            dotoverlsq = dot / lsq
-        except ZeroDivisionError:
-            return np.nan
-        else:
-            if -1 > dotoverlsq > 1:
-                return np.nan
-
-        angle = np.degrees(np.arccos(dotoverlsq))
-        return angle % 180
+        return map_angle_about_zero(angle)
 
     def validate(self):
         zerolength = np.isclose(self.length(), 0)
 
         if zerolength:
             return Invalid(self, "zero length")
-        
+
         return True
+
+    def __str__(self):
+        points = ", ".join(str(point) for point in self.points)
+        return f"{self.__class__.__name__}({self.name}, [{points}], length={self.length()}, angle={self.angle()})"
 
 
 class Invalid:
     def __init__(self, primitive, reason):
         self.primitive = primitive
         self.reason = reason
-    
+
     def __str__(self):
         return f"{self.primitive} ({self.reason})"

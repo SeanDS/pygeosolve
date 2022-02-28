@@ -2,6 +2,7 @@
 
 import abc
 import numpy as np
+from .util import map_angle_about_zero
 
 
 class Constraint(metaclass=abc.ABCMeta):
@@ -27,7 +28,7 @@ class Constraint(metaclass=abc.ABCMeta):
         points = []
         for primitive in self.primitives:
             points.extend(primitive.points)
-        
+
         return points
 
     @property
@@ -49,14 +50,14 @@ class Constraint(metaclass=abc.ABCMeta):
     def error(self):
         """The error function for this constraint."""
         raise NotImplementedError
-    
+
     def __str__(self):
         return f"{self.__class__.__name__}(current={self.value()}, error={self.error()})"
 
 
 class LineLengthConstraint(Constraint):
     """Constraint on the length of a line.
-    
+
     Parameters
     ----------
     line : :class:`.Line`
@@ -100,12 +101,12 @@ class LineLengthConstraint(Constraint):
             The error.
         """
         # The difference in length.
-        return np.abs(self.value() - self.length)
+        return np.abs(self.value() - self.length) ** 2
 
 
 class LineAngleConstraint(Constraint):
     """Constraint on the angle between two lines.
-    
+
     Parameters
     ----------
     line_a, line_b : :class:`.Line`
@@ -126,7 +127,7 @@ class LineAngleConstraint(Constraint):
 
     @angle.setter
     def angle(self, angle):
-        self._angle = angle % 180
+        self._angle = map_angle_about_zero(angle)
 
     @property
     def line_a(self):
@@ -148,12 +149,12 @@ class LineAngleConstraint(Constraint):
         :class:`float`
             The error.
         """
-        return np.abs((self.value() - self.angle) / self.angle)
+        return np.abs((self.value() - self.angle) / self.angle) ** 2
 
 
 class PointToPointDistanceConstraint(Constraint):
     """Constraint on the distance between two points.
-    
+
     Parameters
     ----------
     point_a, point_b : :class:`.Point`

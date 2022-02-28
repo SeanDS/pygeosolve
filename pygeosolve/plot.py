@@ -25,7 +25,7 @@ def plot_problem(problem):
     for primitive in problem.primitives:
         for point in primitive.points:
             ax.plot(point.x, point.y, marker="x", color="red")
-        
+
         for p1, p2 in pairwise(primitive.points):
             ax.plot([p1.x, p2.x], [p1.y, p2.y], color="blue")
             ax.text(p1.x + (p2.x - p1.x) / 2, p1.y + (p2.y - p1.y) / 2, primitive.name)

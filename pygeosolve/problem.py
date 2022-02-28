@@ -53,7 +53,7 @@ class Problem:
             for primitive in constraint.primitives:
                 if primitive not in primitives:
                     primitives.append(primitive)
-        
+
         return primitives
 
     def _invalidate_caches(self):
@@ -62,7 +62,7 @@ class Problem:
                 delattr(self, attrib)
             except AttributeError:
                 pass
-        
+
         for attrib in ("params", "free_params", "free_values", "primitives"):
             invalidate(attrib)
 
@@ -83,7 +83,7 @@ class Problem:
         ----------
         line : :class:`.Line`
             The line to constrain.
-        
+
         length : :class:`float`
             The line length to target.
         """
@@ -96,7 +96,7 @@ class Problem:
         ----------
         line_a, line_b : :class:`.Line`
             The lines to constrain.
-        
+
         :class:`float`
             The angle (in degrees) to target.
         """
@@ -117,7 +117,7 @@ class Problem:
         """
         return sum(constraint.error() for constraint in self.constraints)
 
-    def solve(self):
+    def solve(self, tol=1e-10):
         """Solves the problem.
 
         This method attempts to minimise the error function given the
@@ -137,7 +137,8 @@ class Problem:
             solution = minimize(
                 f,
                 x0=self.free_values,
-                method="COBYLA"
+                method="COBYLA",
+                tol=tol
             )
 
         if not solution.success:
@@ -151,15 +152,30 @@ class Problem:
         yield
         self._update(xpre)
 
-    def __str__(self):        
+    def __str__(self):
+        primitivestrs = []
+        for primitive in self.primitives:
+            primitivestrs.append(str(primitive))
+
         constraintstrs = []
         for constraint in self.constraints:
             constraintstrs.append(str(constraint))
 
         chunks = (
             f"Problem with {len(self.free_params)} free parameter(s) and {len(self.constraints)} constraint(s)",
+            "\n\t" + "\n\t".join(primitivestrs),
+            "\n"
             "\n\t" + "\n\t".join(constraintstrs),
-            f"\nTotal error: {self.error()}"
+            "\n"
+            f"\n\tTotal error: {self.error()}"
         )
 
         return "".join(chunks)
+
+    def plot(self, show=True):
+        from .plot import plot_problem, show as show_problem
+
+        plot_problem(self)
+
+        if show:
+            show_problem()
