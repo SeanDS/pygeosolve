@@ -34,7 +34,7 @@ jobs:
         python -m pip install .
     - name: Test package
       run: |
-        python -m pip install pytest
+        python -m pip install .[dev]
         python -m pytest --cov pygeosolve --cov-report=xml --junitxml=pytest.xml
     - name: Upload test results
       if: always()
