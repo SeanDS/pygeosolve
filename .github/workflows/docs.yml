@@ -1,11 +1,14 @@
 name: Documentation for pygeosolve
 
-on: [push]
+on:
+  push:
+    tags:
+    - '*'
 
 jobs:
-  docs:
+  build:
     name: Build documentation
-    runs-on: Ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
     - name: Get source code
       uses: actions/checkout@v2
@@ -26,10 +29,10 @@ jobs:
         name: documentation
         path: docs/build/html
 
-  deploy-docs:
+  deploy:
     name: Deploy documentation on GitHub pages
-    runs-on: Ubuntu-latest
-    if: startsWith(github.event.ref, 'refs/tags/')  # Only run for tags.
+    runs-on: ubuntu-latest
+    needs: build
     steps:
     - uses: actions/download-artifact@v2
       with:
