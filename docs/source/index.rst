@@ -1,37 +1,31 @@
-Welcome to pygeosolve's documentation!
-======================================
+pygeosolve: a simple geometric constraint solver for Python
+===========================================================
 
-`pygeosolve` can be used to compute solutions to geometrical constraint
-problems.
+Pygeosolve is a simple and easy to use geometric constraint solver for Python. It solves
+constraint problems involving lines and points using SciPy's `optimization package
+<https://docs.scipy.org/doc/scipy/reference/optimize.html>`__.
 
-Basic usage
-***********
+Pygeosolve is a basic library providing users with a bit of fun while experimenting with
+primitive shapes and constraints. It is nowhere near as powerful as a professional CAD
+package, though, so anyone wishing to solve complicated problems might instead consider
+something like `SolveSpace <https://solvespace.com/>`__.
 
-The basic classes you will need to perform a geometric constraint problem are
-shown below:
+.. warning::
+
+   Pygeosolve is experimental software, and will likely remain so forever. It is not
+   recommended to use it as part of Python code you intend to distribute.
 
 .. toctree::
    :maxdepth: 2
+   :caption: Contents:
 
-   geometry/index
-   parameters/index
-   constraints/index
-   problem/index
+   installation
+   quick-start
+   api
 
-Solutions
-*********
-
-A solution can be computed by calling the `solve` method provided with the
-:class:`~pygeosolve.problem.Problem` object.
-
-Plotting
-********
-
-The parameter values can be plotted using the `plot` method provided with the
-:class:`~pygeosolve.problem.Problem` object.
 
 Indices and tables
-******************
+==================
 
 * :ref:`genindex`
 * :ref:`modindex`

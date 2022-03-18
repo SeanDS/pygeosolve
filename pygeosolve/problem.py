@@ -6,6 +6,9 @@ from scipy.optimize import basinhopping
 from .geometry import Point, Line, Invalid
 from .constraints import LineLengthConstraint, LineAngleConstraint
 
+# Indent size.
+INDENT = " " * 4
+
 
 class Problem:
     def __init__(self):
@@ -158,12 +161,22 @@ class Problem:
         """
         return sum(constraint.error() for constraint in self.constraints)
 
-    def solve(self, tol=1e-10):
-        """Solves the problem.
+    def solve(self, **kwargs):
+        """Solve the problem.
 
-        This method attempts to minimise the error function given the
-        constraints defined within the problem. A successful minimisation
-        results in the new, optimised parameter values being assigned.
+        This attempts to minimise the error function given the defined constraints. A
+        successful minimisation results in the new, optimised parameter values being
+        assigned.
+
+        Other Parameters
+        ----------------
+        kwargs
+            Keyword arguments supported by :meth:`scipy.optimize.basinhopping`.
+
+        Returns
+        -------
+        :class:`scipy.optimize.OptimizeResult`
+            The optimisation result.
         """
 
         def f(x, *_):
@@ -176,11 +189,7 @@ class Problem:
         # Perform optimisation, or, if there's an error, restore the original solution.
         xpre = self.free_values
         try:
-            solution = basinhopping(
-                f,
-                x0=self.free_values,
-                minimizer_kwargs=dict(tol=tol),
-            )
+            solution = basinhopping(f, x0=self.free_values, **kwargs)
         except:
             self._update(xpre)
             raise
@@ -189,6 +198,8 @@ class Problem:
             warnings.warn("Unable to find solution")
         else:
             self._update(solution.x)
+
+        return solution
 
     def __str__(self):
         primitivestrs = []
@@ -200,13 +211,13 @@ class Problem:
             constraintstrs.append(str(constraint))
 
         chunks = (
-            f"Problem with {len(self.free_params)} free parameter(s) and "
-            f"{len(self.constraints)} constraint(s)",
-            "\n\t" + "\n\t".join(primitivestrs),
-            "\n"
-            "\n\t" + "\n\t".join(constraintstrs),
-            "\n"
-            f"\n\tTotal error: {self.error()}"
+            f"Problem with {len(self.free_params)} free parameter(s):",
+            f"\n{INDENT}" + f"\n{INDENT}".join(primitivestrs),
+            "\n",
+            f"and {len(self.constraints)} constraint(s):",
+            f"\n{INDENT}" + f"\n{INDENT}".join(constraintstrs),
+            "\n",
+            f"\n{INDENT}Total error: {self.error()}"
         )
 
         return "".join(chunks)

@@ -56,7 +56,7 @@ class Point(Primitive):
         The x and y coordinates.
     """
 
-    def __init__(self, name, x, y, fixed=False):
+    def __init__(self, name, x, y):
         super().__init__(name, [self])
         self.params = [x, y]
 
@@ -152,6 +152,9 @@ class Line(Primitive):
     def angle_to(self, other):
         """The angle to other line with respect to this one.
 
+        The angle is defined as the clockwise rotation from the direction of `self` to
+        get to the direction of `other`.
+
         Parameters
         ----------
         other : :class:`.Line`
@@ -162,9 +165,9 @@ class Line(Primitive):
         :class:`float`
             The angle, in degrees, in the range (-180, 180].
         """
-        angle = np.degrees(
-            np.arctan2(other.dy(), other.dx()) - np.arctan2(self.dy(), self.dx())
-        )
+        dot = self.dx() * other.dx() + self.dy() * other.dy()
+        det = self.dy() * other.dx() - self.dx() * other.dy()
+        angle = np.degrees(np.arctan2(det, dot))
 
         return map_angle_about_zero(angle)
 
