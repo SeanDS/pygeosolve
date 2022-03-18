@@ -1,0 +1,652 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>API documentation &#8212; pygeosolve 0.7.7 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/thebelab-helper.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Quick start" href="quick-start.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">pygeosolve</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=SeanDS&repo=pygeosolve&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick-start.html">Quick start</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-pygeosolve.constraints">pygeosolve.constraints module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pygeosolve.geometry">pygeosolve.geometry module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pygeosolve.plot">pygeosolve.plot module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pygeosolve.problem">pygeosolve.problem module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pygeosolve.util">pygeosolve.util module</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="quick-start.html" title="previous chapter">Quick start</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="api-documentation">
+<h1>API documentation<a class="headerlink" href="#api-documentation" title="Permalink to this headline">¶</a></h1>
+<section id="module-pygeosolve.constraints">
+<span id="pygeosolve-constraints-module"></span><h2>pygeosolve.constraints module<a class="headerlink" href="#module-pygeosolve.constraints" title="Permalink to this headline">¶</a></h2>
+<p>Constraints.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pygeosolve.constraints.Constraint">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pygeosolve.constraints.</span></span><span class="sig-name descname"><span class="pre">Constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">primitives</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/constraints.py#L8-L58"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.constraints.Constraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A constraint between primitives.</p>
+<p>A constraint is defined between one or more <a class="reference internal" href="#pygeosolve.geometry.Primitive" title="pygeosolve.geometry.Primitive"><code class="xref py py-class docutils literal notranslate"><span class="pre">Primitive</span></code></a> objects. This class
+defines the interface for concrete constraints to determine their error in the
+current problem using these primitives.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>primitives</strong><span class="classifier">sequence</span></dt><dd><p>The primitives associated with this constraint.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pygeosolve.constraints.Constraint.error">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">error</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/constraints.py#L49-L52"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.constraints.Constraint.error" title="Permalink to this definition">¶</a></dt>
+<dd><p>The error function for this constraint.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pygeosolve.constraints.Constraint.params">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">params</span></span><a class="headerlink" href="#pygeosolve.constraints.Constraint.params" title="Permalink to this definition">¶</a></dt>
+<dd><p>The parameters associated with the points within this constraint.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pygeosolve.constraints.Constraint.points">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">points</span></span><a class="headerlink" href="#pygeosolve.constraints.Constraint.points" title="Permalink to this definition">¶</a></dt>
+<dd><p>The points associated with the primitives associated with this constraint.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygeosolve.constraints.Constraint.value">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/constraints.py#L44-L47"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.constraints.Constraint.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>The current value of the constrained parameter(s).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pygeosolve.constraints.LineAngleConstraint">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pygeosolve.constraints.</span></span><span class="sig-name descname"><span class="pre">LineAngleConstraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/constraints.py#L110-L155"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.constraints.LineAngleConstraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pygeosolve.constraints.Constraint" title="pygeosolve.constraints.Constraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">pygeosolve.constraints.Constraint</span></code></a></p>
+<p>Constraint on the angle between two lines.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>line_a, line_b</strong><span class="classifier"><a class="reference internal" href="#pygeosolve.geometry.Line" title="pygeosolve.geometry.Line"><code class="xref py py-class docutils literal notranslate"><span class="pre">Line</span></code></a></span></dt><dd><p>The lines to constrain.</p>
+</dd>
+<dt><strong>angle</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>The angle (in degrees) to constrain the lines to.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pygeosolve.constraints.LineAngleConstraint.angle">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">angle</span></span><a class="headerlink" href="#pygeosolve.constraints.LineAngleConstraint.angle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygeosolve.constraints.LineAngleConstraint.error">
+<span class="sig-name descname"><span class="pre">error</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/constraints.py#L147-L155"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.constraints.LineAngleConstraint.error" title="Permalink to this definition">¶</a></dt>
+<dd><p>The current angle constraint error.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></dt><dd><p>The error.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pygeosolve.constraints.LineAngleConstraint.line_a">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">line_a</span></span><a class="headerlink" href="#pygeosolve.constraints.LineAngleConstraint.line_a" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pygeosolve.constraints.LineAngleConstraint.line_b">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">line_b</span></span><a class="headerlink" href="#pygeosolve.constraints.LineAngleConstraint.line_b" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygeosolve.constraints.LineAngleConstraint.value">
+<span class="sig-name descname"><span class="pre">value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/constraints.py#L143-L145"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.constraints.LineAngleConstraint.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>The current value of the constrained parameter(s).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pygeosolve.constraints.LineLengthConstraint">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pygeosolve.constraints.</span></span><span class="sig-name descname"><span class="pre">LineLengthConstraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/constraints.py#L61-L107"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.constraints.LineLengthConstraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pygeosolve.constraints.Constraint" title="pygeosolve.constraints.Constraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">pygeosolve.constraints.Constraint</span></code></a></p>
+<p>Constraint on the length of a line.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>line</strong><span class="classifier"><a class="reference internal" href="#pygeosolve.geometry.Line" title="pygeosolve.geometry.Line"><code class="xref py py-class docutils literal notranslate"><span class="pre">Line</span></code></a></span></dt><dd><p>The line to constrain.</p>
+</dd>
+<dt><strong>length</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>The length to constrain the line to.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pygeosolve.constraints.LineLengthConstraint.error">
+<span class="sig-name descname"><span class="pre">error</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/constraints.py#L98-L107"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.constraints.LineLengthConstraint.error" title="Permalink to this definition">¶</a></dt>
+<dd><p>The current length constraint error.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></dt><dd><p>The error.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pygeosolve.constraints.LineLengthConstraint.length">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">length</span></span><a class="headerlink" href="#pygeosolve.constraints.LineLengthConstraint.length" title="Permalink to this definition">¶</a></dt>
+<dd><p>The constraint length.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pygeosolve.constraints.LineLengthConstraint.line">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">line</span></span><a class="headerlink" href="#pygeosolve.constraints.LineLengthConstraint.line" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygeosolve.constraints.LineLengthConstraint.value">
+<span class="sig-name descname"><span class="pre">value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/constraints.py#L94-L96"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.constraints.LineLengthConstraint.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>The current value of the constrained parameter(s).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pygeosolve.constraints.PointToPointDistanceConstraint">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pygeosolve.constraints.</span></span><span class="sig-name descname"><span class="pre">PointToPointDistanceConstraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point_b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/constraints.py#L158-L190"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.constraints.PointToPointDistanceConstraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pygeosolve.constraints.Constraint" title="pygeosolve.constraints.Constraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">pygeosolve.constraints.Constraint</span></code></a></p>
+<p>Constraint on the distance between two points.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>point_a, point_b</strong><span class="classifier"><a class="reference internal" href="#pygeosolve.geometry.Point" title="pygeosolve.geometry.Point"><code class="xref py py-class docutils literal notranslate"><span class="pre">Point</span></code></a></span></dt><dd><p>The points to constrain.</p>
+</dd>
+<dt><strong>distance</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>The distance to constrain the points’ separation to.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pygeosolve.constraints.PointToPointDistanceConstraint.error">
+<span class="sig-name descname"><span class="pre">error</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/constraints.py#L182-L190"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.constraints.PointToPointDistanceConstraint.error" title="Permalink to this definition">¶</a></dt>
+<dd><p>The current distance constraint error.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></dt><dd><p>The error.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pygeosolve.constraints.PointToPointDistanceConstraint.point_a">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">point_a</span></span><a class="headerlink" href="#pygeosolve.constraints.PointToPointDistanceConstraint.point_a" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pygeosolve.constraints.PointToPointDistanceConstraint.point_b">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">point_b</span></span><a class="headerlink" href="#pygeosolve.constraints.PointToPointDistanceConstraint.point_b" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pygeosolve.geometry">
+<span id="pygeosolve-geometry-module"></span><h2>pygeosolve.geometry module<a class="headerlink" href="#module-pygeosolve.geometry" title="Permalink to this headline">¶</a></h2>
+<p>Geometry.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pygeosolve.geometry.Invalid">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pygeosolve.geometry.</span></span><span class="sig-name descname"><span class="pre">Invalid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">primitive</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reason</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/geometry.py#L190-L196"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.geometry.Invalid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pygeosolve.geometry.Line">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pygeosolve.geometry.</span></span><span class="sig-name descname"><span class="pre">Line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/geometry.py#L91-L187"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.geometry.Line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pygeosolve.geometry.Primitive" title="pygeosolve.geometry.Primitive"><code class="xref py py-class docutils literal notranslate"><span class="pre">pygeosolve.geometry.Primitive</span></code></a></p>
+<p>A line formed between two 2D points in Euclidean space.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>start, end</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code> containg two <code class="xref py py-class docutils literal notranslate"><span class="pre">floats</span></code> or</span></dt><dd><p><a class="reference internal" href="#pygeosolve.geometry.Point" title="pygeosolve.geometry.Point"><code class="xref py py-class docutils literal notranslate"><span class="pre">points</span></code></a></p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pygeosolve.geometry.Line.angle">
+<span class="sig-name descname"><span class="pre">angle</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/geometry.py#L141-L150"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.geometry.Line.angle" title="Permalink to this definition">¶</a></dt>
+<dd><p>The angle of the vector formed by this line translated to the origin.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></dt><dd><p>The angle, in degrees, in the range (-180, 180].</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygeosolve.geometry.Line.angle_to">
+<span class="sig-name descname"><span class="pre">angle_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/geometry.py#L152-L172"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.geometry.Line.angle_to" title="Permalink to this definition">¶</a></dt>
+<dd><p>The angle to other line with respect to this one.</p>
+<p>The angle is defined as the clockwise rotation from the direction of <cite>self</cite> to
+get to the direction of <cite>other</cite>.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>other</strong><span class="classifier"><a class="reference internal" href="#pygeosolve.geometry.Line" title="pygeosolve.geometry.Line"><code class="xref py py-class docutils literal notranslate"><span class="pre">Line</span></code></a></span></dt><dd><p>The other line.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></dt><dd><p>The angle, in degrees, in the range (-180, 180].</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygeosolve.geometry.Line.dx">
+<span class="sig-name descname"><span class="pre">dx</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/geometry.py#L111-L119"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.geometry.Line.dx" title="Permalink to this definition">¶</a></dt>
+<dd><p>The difference between the end and start x-coordinates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></dt><dd><p>The difference.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygeosolve.geometry.Line.dy">
+<span class="sig-name descname"><span class="pre">dy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/geometry.py#L121-L129"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.geometry.Line.dy" title="Permalink to this definition">¶</a></dt>
+<dd><p>The difference between the end and start y-coordinates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></dt><dd><p>The difference.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pygeosolve.geometry.Line.end">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">end</span></span><a class="headerlink" href="#pygeosolve.geometry.Line.end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygeosolve.geometry.Line.length">
+<span class="sig-name descname"><span class="pre">length</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/geometry.py#L131-L139"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.geometry.Line.length" title="Permalink to this definition">¶</a></dt>
+<dd><p>The line length.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></dt><dd><p>The length.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pygeosolve.geometry.Line.start">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">start</span></span><a class="headerlink" href="#pygeosolve.geometry.Line.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygeosolve.geometry.Line.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/geometry.py#L174-L180"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.geometry.Line.validate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pygeosolve.geometry.Point">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pygeosolve.geometry.</span></span><span class="sig-name descname"><span class="pre">Point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/geometry.py#L44-L88"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.geometry.Point" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pygeosolve.geometry.Primitive" title="pygeosolve.geometry.Primitive"><code class="xref py py-class docutils literal notranslate"><span class="pre">pygeosolve.geometry.Primitive</span></code></a></p>
+<p>A 2D point in Euclidean space.</p>
+<p>Normally points should not be instantiated directly, but via <a class="reference internal" href="#pygeosolve.geometry.Primitive" title="pygeosolve.geometry.Primitive"><code class="xref py py-class docutils literal notranslate"><span class="pre">primitives</span></code></a>.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>name</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></dt><dd><p>The name of this point.</p>
+</dd>
+<dt><strong>x, y</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>The x and y coordinates.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pygeosolve.geometry.Point.norm">
+<span class="sig-name descname"><span class="pre">norm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/geometry.py#L71-L72"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.geometry.Point.norm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pygeosolve.geometry.Point.x">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">x</span></span><a class="headerlink" href="#pygeosolve.geometry.Point.x" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pygeosolve.geometry.Point.y">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">y</span></span><a class="headerlink" href="#pygeosolve.geometry.Point.y" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pygeosolve.geometry.Primitive">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pygeosolve.geometry.</span></span><span class="sig-name descname"><span class="pre">Primitive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/geometry.py#L9-L41"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.geometry.Primitive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A primitive shape.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>name</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></dt><dd><p>The name.</p>
+</dd>
+<dt><strong>points</strong><span class="classifier">sequence</span></dt><dd><p>The points that make up the primitive.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pygeosolve.geometry.Primitive.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/geometry.py#L40-L41"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.geometry.Primitive.validate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pygeosolve.plot">
+<span id="pygeosolve-plot-module"></span><h2>pygeosolve.plot module<a class="headerlink" href="#module-pygeosolve.plot" title="Permalink to this headline">¶</a></h2>
+<p>Plotting.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pygeosolve.plot.pairwise">
+<span class="sig-prename descclassname"><span class="pre">pygeosolve.plot.</span></span><span class="sig-name descname"><span class="pre">pairwise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterable</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/plot.py#L14-L17"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.plot.pairwise" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pygeosolve.plot.plot_problem">
+<span class="sig-prename descclassname"><span class="pre">pygeosolve.plot.</span></span><span class="sig-name descname"><span class="pre">plot_problem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/plot.py#L20-L31"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.plot.plot_problem" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pygeosolve.plot.show">
+<span class="sig-prename descclassname"><span class="pre">pygeosolve.plot.</span></span><span class="sig-name descname"><span class="pre">show</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/plot.py#L34-L35"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.plot.show" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-pygeosolve.problem">
+<span id="pygeosolve-problem-module"></span><h2>pygeosolve.problem module<a class="headerlink" href="#module-pygeosolve.problem" title="Permalink to this headline">¶</a></h2>
+<p>Constraint problems.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pygeosolve.problem.Problem">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pygeosolve.problem.</span></span><span class="sig-name descname"><span class="pre">Problem</span></span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/problem.py#L13-L231"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.problem.Problem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pygeosolve.problem.Problem.add_line">
+<span class="sig-name descname"><span class="pre">add_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/problem.py#L30-L31"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.problem.Problem.add_line" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygeosolve.problem.Problem.add_point">
+<span class="sig-name descname"><span class="pre">add_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/problem.py#L27-L28"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.problem.Problem.add_point" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygeosolve.problem.Problem.constrain_angle_between_lines">
+<span class="sig-name descname"><span class="pre">constrain_angle_between_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/problem.py#L135-L146"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.problem.Problem.constrain_angle_between_lines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a constraint on the angle between two lines.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>line_a, line_b</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></dt><dd><p>The names of the lines to constrain.</p>
+</dd>
+<dt><strong>:class:`float`</strong></dt><dd><p>The angle (in degrees) to target.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygeosolve.problem.Problem.constrain_line_length">
+<span class="sig-name descname"><span class="pre">constrain_line_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/problem.py#L122-L133"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.problem.Problem.constrain_line_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a constraint on the length of a line.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>name</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></dt><dd><p>The name of the line to constrain.</p>
+</dd>
+<dt><strong>length</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>The line length to target.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygeosolve.problem.Problem.constrain_position">
+<span class="sig-name descname"><span class="pre">constrain_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/problem.py#L109-L120"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.problem.Problem.constrain_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fix the current position of a primitive.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>name</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></dt><dd><p>The name of the primitive to fix.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygeosolve.problem.Problem.error">
+<span class="sig-name descname"><span class="pre">error</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/problem.py#L154-L162"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.problem.Problem.error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the current free parameter values’ total error.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></dt><dd><p>The total error.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pygeosolve.problem.Problem.free_params">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">free_params</span></span><a class="headerlink" href="#pygeosolve.problem.Problem.free_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Free parameter names in this problem.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pygeosolve.problem.Problem.free_values">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">free_values</span></span><a class="headerlink" href="#pygeosolve.problem.Problem.free_values" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygeosolve.problem.Problem.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/problem.py#L225-L231"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.problem.Problem.plot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pygeosolve.problem.Problem.points">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">points</span></span><a class="headerlink" href="#pygeosolve.problem.Problem.points" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygeosolve.problem.Problem.solve">
+<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/problem.py#L164-L202"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.problem.Problem.solve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve the problem.</p>
+<p>This attempts to minimise the error function given the defined constraints. A
+successful minimisation results in the new, optimised parameter values being
+assigned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">scipy.optimize.OptimizeResult</span></code></dt><dd><p>The optimisation result.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Other Parameters</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>kwargs</strong></dt><dd><p>Keyword arguments supported by <code class="xref py py-meth docutils literal notranslate"><span class="pre">scipy.optimize.basinhopping()</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pygeosolve.problem.Problem.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/problem.py#L96-L107"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.problem.Problem.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate the problem.</p>
+<p>This checks that primitives in the problem are valid, e.g. that lines have
+nonzero length.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pygeosolve.util">
+<span id="pygeosolve-util-module"></span><h2>pygeosolve.util module<a class="headerlink" href="#module-pygeosolve.util" title="Permalink to this headline">¶</a></h2>
+<p>Utilities.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pygeosolve.util.map_angle_about_zero">
+<span class="sig-prename descclassname"><span class="pre">pygeosolve.util.</span></span><span class="sig-name descname"><span class="pre">map_angle_about_zero</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/SeanDS/pygeosolve/tree/0.7.7/pygeosolve/util.py#L4-L6"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygeosolve.util.map_angle_about_zero" title="Permalink to this definition">¶</a></dt>
+<dd><p>Map angle to be in the range (-180, 180]°.</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2015-2022, Sean Leavey.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.4.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/api.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/SeanDS/pygeosolve" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
