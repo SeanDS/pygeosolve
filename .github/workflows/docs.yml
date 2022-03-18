@@ -2,10 +2,6 @@ name: Documentation for pygeosolve
 
 on: [push]
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   docs:
     name: Build documentation
