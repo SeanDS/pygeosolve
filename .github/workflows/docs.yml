@@ -1,0 +1,46 @@
+name: Documentation deployment for pygeosolve
+
+on:
+  push:
+    tags:
+    - "*"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docs:
+    name: Build documentation
+    runs-on: Ubuntu-latest
+    steps:
+    - name: Get source code
+      uses: actions/checkout@v2
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Install package
+      run: |
+        python -m pip install .[dev]
+    - name: Build documentation
+      run: |
+        cd docs
+        make html
+    - name: Upload documentation artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: documentation
+        path: docs/build/html
+
+  deploy-docs:
+    name: Deploy documentation on GitHub pages
+    steps:
+    - uses: actions/download-artifact@v2
+      with:
+        name: documentation
+        path: docs
+    - uses: JamesIves/github-pages-deploy-action@v4.2.5
+      with:
+        branch: gh-pages
+        folder: docs
