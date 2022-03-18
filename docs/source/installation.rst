@@ -4,7 +4,7 @@ Installation
 ============
 
 ``pygeosolve`` requires Python 3.8 or later. It can be installed from `PyPI
-<https://pypi.org/project/dcc/>`__ using ``pip`` or your favourite Python package
+<https://pypi.org/project/pygeosolve/>`__ using ``pip`` or your favourite Python package
 manager using e.g.:
 
 .. code-block:: console
