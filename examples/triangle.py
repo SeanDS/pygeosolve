@@ -1,16 +1,17 @@
-"""Make a right angle from two lines."""
+"""Make a right triangle equilateral."""
 
 from pygeosolve import Problem
 
 # Create problem with initial line positions.
 problem = Problem()
-problem.add_line("a", (0, 0), (30, 0))
-problem.add_line("b", problem["a"].start, (15, 15))
+problem.add_line("a", (0, 0), (10, 0))
+problem.add_line("b", problem["a"].end, (10, 10))
+problem.add_line("c", problem["b"].end, problem["a"].start)
 
 # Constrain the lines.
 problem.constrain_position("a")
-problem.constrain_line_length("b", 30)
-problem.constrain_angle_between_lines("a", "b", 90)
+problem.constrain_line_length("b", 10)
+problem.constrain_line_length("c", 10)
 
 # Solve
 problem.solve()

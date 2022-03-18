@@ -54,6 +54,9 @@ class Constraint(metaclass=abc.ABCMeta):
     def __str__(self):
         return f"{self.__class__.__name__}(current={self.value()}, error={self.error()})"
 
+    def __repr__(self):
+        return f"<{self.__class__.__name__}@{hex(id(self))}>"
+
 
 class LineLengthConstraint(Constraint):
     """Constraint on the length of a line.

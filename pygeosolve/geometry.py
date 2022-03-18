@@ -3,7 +3,6 @@
 import abc
 from decimal import DivisionByZero
 import numpy as np
-from .parameters import Parameter
 from .util import map_angle_about_zero
 
 
@@ -35,17 +34,11 @@ class Primitive(metaclass=abc.ABCMeta):
     def __str__(self):
         raise NotImplementedError
 
+    def __repr__(self):
+        return f"<{self.__class__.__name__}@{hex(id(self))}>"
+
     def validate(self):
         return True
-
-    @property
-    def fixed(self):
-        return all([point.fixed for point in self.points])
-
-    @fixed.setter
-    def fixed(self, fixed):
-        for point in self.points:
-            point.fixed = fixed
 
 
 class Point(Primitive):
@@ -59,50 +52,37 @@ class Point(Primitive):
     name : :class:`str`
         The name of this point.
 
-    x, y : :class:`.Parameter`
+    x, y : :class:`float`
         The x and y coordinates.
     """
 
     def __init__(self, name, x, y, fixed=False):
         super().__init__(name, [self])
-        self.x = Parameter(x)
-        self.y = Parameter(y)
-        self._fixed = fixed
+        self.params = [x, y]
 
     @property
-    def fixed(self):
-        return self._fixed
-
-    @fixed.setter
-    def fixed(self, fixed):
-        self.x.fixed = fixed
-        self.y.fixed = fixed
-        self._fixed = fixed
+    def x(self):
+        return self.params[0]
 
     @property
-    def params(self):
-        return [self.x, self.y]
+    def y(self):
+        return self.params[1]
 
     def norm(self):
-        return np.sqrt(np.power(self.x.value, 2) + np.power(self.y.value, 2))
+        return np.sqrt(np.power(self.x, 2) + np.power(self.y, 2))
 
     def __add__(self, other):
         return self.__class__(
-            self._op_name("+", other),
-            Parameter(self.x + other.x),
-            Parameter(self.y + other.y)
+            self._op_name("+", other), self.x + other.x, self.y + other.y
         )
 
     def __sub__(self, other):
         return self.__class__(
-            self._op_name("-", other),
-            Parameter(self.x - other.x),
-            Parameter(self.y - other.y)
+            self._op_name("-", other), self.x - other.x, self.y - other.y
         )
 
     def __str__(self):
-        fixed = "fixed" if self.fixed else "free"
-        return f"{self.__class__.__name__}({self.name}, ({self.x.value}, {self.y.value}), {fixed})"
+        return f"{self.__class__.__name__}({self.name}, ({self.x}, {self.y}))"
 
     def _op_name(self, op, other):
         return f"{self}{op}{other}"
@@ -166,7 +146,7 @@ class Line(Primitive):
         :class:`float`
             The angle, in degrees, in the range (-180, 180].
         """
-        angle = np.degrees(np.arctan2(self.dx().value, self.dy().value))
+        angle = np.degrees(np.arctan2(self.dx(), self.dy()))
         return map_angle_about_zero(angle)
 
     def angle_to(self, other):
@@ -183,8 +163,7 @@ class Line(Primitive):
             The angle, in degrees, in the range (-180, 180].
         """
         angle = np.degrees(
-            np.arctan2(other.dy().value, other.dx().value)
-            - np.arctan2(self.dy().value, self.dx().value)
+            np.arctan2(other.dy(), other.dx()) - np.arctan2(self.dy(), self.dx())
         )
 
         return map_angle_about_zero(angle)
@@ -199,7 +178,10 @@ class Line(Primitive):
 
     def __str__(self):
         points = ", ".join(str(point) for point in self.points)
-        return f"{self.__class__.__name__}({self.name}, [{points}], length={self.length()}, angle={self.angle()})"
+        return (
+            f"{self.__class__.__name__}({self.name}, [{points}], "
+            f"length={self.length()}, angle={self.angle()})"
+        )
 
 
 class Invalid:

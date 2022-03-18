@@ -1,60 +1,81 @@
 """Constraint problems."""
 
-from multiprocessing.sharedctypes import Value
 import warnings
 from functools import cached_property
-from contextlib import contextmanager
-from scipy.optimize import minimize
-from .geometry import Invalid
+from scipy.optimize import basinhopping
+from .geometry import Point, Line, Invalid
 from .constraints import LineLengthConstraint, LineAngleConstraint
 
 
 class Problem:
     def __init__(self):
+        self.primitives = {}
         self.constraints = []
+        self.fixed_points = set()
+        self._param_id_map = {}
+        self._id_param_map = {}
+
+    def __getitem__(self, item):
+        try:
+            return self.primitives[item]
+        except KeyError:
+            raise ValueError(f"{repr(item)} is not part of this problem")
+
+    def add_point(self, *args, **kwargs):
+        self._add(Point(*args, **kwargs))
+
+    def add_line(self, *args, **kwargs):
+        self._add(Line(*args, **kwargs))
+
+    def _add(self, primitive):
+        if primitive.name in self.primitives:
+            raise ValueError(f"{repr(primitive.name)} already in problem")
+
+        self.primitives[primitive.name] = primitive
 
     @cached_property
-    def params(self):
-        params = []
+    def points(self):
+        points = set()
 
-        for constraint in self.constraints:
-            for param in constraint.params:
-                if param not in params:
-                    params.append(param)
+        for primitive in self.primitives.values():
+            points.update(primitive.points)
 
-        return params
+        return points
 
     @cached_property
     def free_params(self):
-        free = []
+        """Free parameter names in this problem."""
+        params = set()
 
-        for param in self.params:
-            if not param.fixed and param not in free:
-                free.append(param)
+        for point in self.points:
+            for param_index in range(len(point.params)):
+                name = self._param_to_id(point, param_index)
+                if name not in self.fixed_points:
+                    params.add(name)
 
-        return free
+        return params
 
-    @cached_property
+    @property
     def free_values(self):
-        """Current values of the free parameters in this problem.
+        values = []
 
-        Returns
-        -------
-        :class:`list`
-            The current free parameter values.
-        """
-        return [param.value for param in self.free_params]
+        for name in self.free_params:
+            point, param_index = self._id_to_param(name)
+            values.append(point.params[param_index])
 
-    @cached_property
-    def primitives(self):
-        primitives = []
+        return values
 
-        for constraint in self.constraints:
-            for primitive in constraint.primitives:
-                if primitive not in primitives:
-                    primitives.append(primitive)
+    def _param_to_id(self, point, param_index):
+        key = point, param_index
+        if key not in self._param_id_map:
+            name = f"{repr(point)}#{param_index}"
+            self._param_id_map[key] = name
+            self._id_param_map[name] = key
 
-        return primitives
+        return self._param_id_map[key]
+
+    def _id_to_param(self, name):
+        return self._id_param_map[name]
 
     def _invalidate_caches(self):
         def invalidate(attrib):
@@ -63,49 +84,69 @@ class Problem:
             except AttributeError:
                 pass
 
-        for attrib in ("params", "free_params", "free_values", "primitives"):
+        for attrib in ("points", "free_params"):
             invalidate(attrib)
 
-    def _validate_primitives(self):
-        status = [primitive.validate() for primitive in self.primitives]
+        self._param_id_map.clear()
+        self._id_param_map.clear()
+
+    def validate(self):
+        """Validate the problem.
+
+        This checks that primitives in the problem are valid, e.g. that lines have
+        nonzero length.
+        """
+        status = [primitive.validate() for primitive in self.primitives.values()]
         invalid = list(filter(lambda s: isinstance(s, Invalid), status))
 
         if invalid:
-            raise ValueError(
-                f"The following primitives are invalid: {', '.join(str(s) for s in invalid)}"
-            )
+            invalid_str = ", ".join(str(s) for s in invalid)
+            raise ValueError(f"The following primitives are invalid: {invalid_str}")
 
+    def constrain_position(self, name):
+        """Fix the current position of a primitive.
 
-    def constrain_line_length(self, line, length):
+        Parameters
+        ----------
+        name : :class:`str`
+            The name of the primitive to fix.
+        """
+        for point in self[name].points:
+            for param_index in range(len(point.params)):
+                name = self._param_to_id(point, param_index)
+                self.fixed_points.add(name)
+
+    def constrain_line_length(self, name, length):
         """Add a constraint on the length of a line.
 
         Parameters
         ----------
-        line : :class:`.Line`
-            The line to constrain.
+        name : :class:`str`
+            The name of the line to constrain.
 
         length : :class:`float`
             The line length to target.
         """
-        self.constraints.append(LineLengthConstraint(line, length))
+        self.constraints.append(LineLengthConstraint(self[name], length))
 
     def constrain_angle_between_lines(self, line_a, line_b, angle):
         """Add a constraint on the angle between two lines.
 
         Parameters
         ----------
-        line_a, line_b : :class:`.Line`
-            The lines to constrain.
+        line_a, line_b : :class:`str`
+            The names of the lines to constrain.
 
         :class:`float`
             The angle (in degrees) to target.
         """
-        self.constraints.append(LineAngleConstraint(line_a, line_b, angle))
+        self.constraints.append(LineAngleConstraint(self[line_a], self[line_b], angle))
 
     def _update(self, values):
         """Update current free parameter values."""
-        for param, value in zip(self.free_params, values):
-            param.value = value
+        for name, value in zip(self.free_params, values):
+            point, param_index = self._id_to_param(name)
+            point.params[param_index] = value
 
     def error(self):
         """Calculate the current free parameter values' total error.
@@ -130,31 +171,28 @@ class Problem:
             return self.error()
 
         self._invalidate_caches()
-        self._validate_primitives()
+        self.validate()
 
         # Perform optimisation, or, if there's an error, restore the original solution.
-        with self._temporary_parameters():
-            solution = minimize(
+        xpre = self.free_values
+        try:
+            solution = basinhopping(
                 f,
                 x0=self.free_values,
-                method="COBYLA",
-                tol=tol
+                minimizer_kwargs=dict(tol=tol),
             )
+        except:
+            self._update(xpre)
+            raise
 
         if not solution.success:
             warnings.warn("Unable to find solution")
         else:
             self._update(solution.x)
 
-    @contextmanager
-    def _temporary_parameters(self):
-        xpre = self.free_values
-        yield
-        self._update(xpre)
-
     def __str__(self):
         primitivestrs = []
-        for primitive in self.primitives:
+        for primitive in self.primitives.values():
             primitivestrs.append(str(primitive))
 
         constraintstrs = []
@@ -162,7 +200,8 @@ class Problem:
             constraintstrs.append(str(constraint))
 
         chunks = (
-            f"Problem with {len(self.free_params)} free parameter(s) and {len(self.constraints)} constraint(s)",
+            f"Problem with {len(self.free_params)} free parameter(s) and "
+            f"{len(self.constraints)} constraint(s)",
             "\n\t" + "\n\t".join(primitivestrs),
             "\n"
             "\n\t" + "\n\t".join(constraintstrs),

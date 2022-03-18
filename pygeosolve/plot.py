@@ -22,7 +22,7 @@ def plot_problem(problem):
     ax = fig.gca()
     ax.set_aspect("equal", "datalim")
 
-    for primitive in problem.primitives:
+    for primitive in problem.primitives.values():
         for point in primitive.points:
             ax.plot(point.x, point.y, marker="x", color="red")
 

@@ -8,7 +8,5 @@ except ImportError:
 
 
 from .problem import Problem
-from .geometry import Point, Line
-from .plot import plot_problem, show
 
-__all__ = ("Problem", "Point", "Line", "plot_problem", "show")
+__all__ = ("__version__", "Problem")
