@@ -33,7 +33,7 @@ jobs:
   deploy-docs:
     name: Deploy documentation on GitHub pages
     runs-on: Ubuntu-latest
-    if: startsWith(github.event.ref, "refs/tags/")  # Only run for tags.
+    if: startsWith(github.event.ref, 'refs/tags/')  # Only run for tags.
     steps:
     - uses: actions/download-artifact@v2
       with:
